@@ -9,21 +9,26 @@ Public Class DatabaseAccess
     Public Sub New(filename As String)
 
         Me.filename = filename
-        connectionString = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=" & filename & ";Persist Security Info=False;"
 
+        'Access File erzeugen
+        Dim cat As New ADOX.Catalog()
+        Dim creationString As String = "Provider=Microsoft.ACE.OLEDB.15.0;Data Source=" & filename
+        cat.Create(creationString)
+
+        connectionString = creationString & ";Persist Security Info=False;"
         Dim conn As OleDb.OleDbConnection = getConnection()
 
-        Try
-            Dim cmd As New OleDb.OleDbCommand("CREATE DATABASE IF NOT EXISTS MyDb", conn)
-            cmd.ExecuteNonQuery()
-        Catch ex As Exception
-            'Do nothing
-        End Try
+        'Try
+        '    Dim cmd As New OleDb.OleDbCommand("CREATE DATABASE IF NOT EXISTS MyDb", conn)
+        '    cmd.ExecuteNonQuery()
+        'Catch ex As Exception
+        '    'Do nothing
+        'End Try
 
         Try
-            Dim cmd As New OleDb.OleDbCommand("CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(100), Company VARCHAR(100), CoreAreas VARCHAR(100))
-                           FieldsOfStudy VARCHAR(100), Degrees VARCHAR(100), Locations VARCHAR(150), NiceToKnow VARCHAR(2000), Description VARCHAR(10000),
-                           ULR VARCHAR(100), HTML VARCHAR(200000))", conn)
+            Dim cmd As New OleDb.OleDbCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
+                           FieldsOfStudy VARCHAR(255), Degrees VARCHAR(255), Locations VARCHAR(255), NiceToKnow LONGTEXT, Description LONGTEXT,
+                           URL VARCHAR(255), HTML LONGTEXT)", conn)
             cmd.ExecuteNonQuery()
         Catch ex As Exception
             'Do nothing

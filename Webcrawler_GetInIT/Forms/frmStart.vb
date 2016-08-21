@@ -12,10 +12,13 @@
 
         If dlg.ShowDialog = DialogResult.OK Then
             If Not String.IsNullOrEmpty(dlg.FileName) Then
+                If System.IO.File.Exists(dlg.FileName) Then
+                    System.IO.File.Delete(dlg.FileName)
+                End If
                 CType(Me.Owner, frmMain).filename = dlg.FileName
                 Me.Close()
             Else
-                MessageBox.Show("Bitte geben Sie einen gültigen Dateinamen an.", "Fehler", MessageBoxButtons.OK)
+                    MessageBox.Show("Bitte geben Sie einen gültigen Dateinamen an.", "Fehler", MessageBoxButtons.OK)
             End If
         End If
     End Sub
