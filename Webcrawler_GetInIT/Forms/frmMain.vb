@@ -1,8 +1,9 @@
 ﻿Public Class frmMain
 
-    Private Db As DatabaseAccess
+
 
     Public Property filename As String
+    Public crawler As Crawler
 
 
 
@@ -11,9 +12,20 @@
         Dim myFrm As New frmStart()
         myFrm.ShowDialog(Me)
 
-        Db = New DatabaseAccess(filename)
+        crawler = New Crawler(filename, Me)
+
 
     End Sub
 
+    Private Sub btnStartCrawling_Click(sender As Object, e As EventArgs) Handles btnStartCrawling.Click
 
+        crawler.StartCrawling()
+
+    End Sub
+
+    Private Sub btnPauseCrawling_Click(sender As Object, e As EventArgs) Handles btnPauseCrawling.Click
+
+        crawler.PauseCrawling()
+
+    End Sub
 End Class

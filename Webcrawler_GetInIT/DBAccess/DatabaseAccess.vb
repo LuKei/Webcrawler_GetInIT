@@ -1,8 +1,10 @@
-﻿
+﻿Imports System.IO
+Imports System.Data.OleDb
+
 Public Class DatabaseAccess
 
     Private connectionString As String
-    Private connection As OleDb.OleDbConnection
+    Private connection As OleDbConnection
 
     Public Property filename As String
 
@@ -10,28 +12,29 @@ Public Class DatabaseAccess
 
         Me.filename = filename
 
-        'Access File erzeugen
-        Dim cat As New ADOX.Catalog()
         Dim creationString As String = "Provider=Microsoft.ACE.OLEDB.15.0;Data Source=" & filename
-        cat.Create(creationString)
-
         connectionString = creationString & ";Persist Security Info=False;"
-        Dim conn As OleDb.OleDbConnection = getConnection()
+        'Access File erzeugen, wenn noch nicht vorhanden
+        If Not File.Exists(filename) Then
+            Dim cat As New ADOX.Catalog()
+            cat.Create(creationString)
+        End If
 
-        'Try
-        '    Dim cmd As New OleDb.OleDbCommand("CREATE DATABASE IF NOT EXISTS MyDb", conn)
-        '    cmd.ExecuteNonQuery()
-        'Catch ex As Exception
-        '    'Do nothing
-        'End Try
+
+        Dim conn As OleDbConnection = getConnection()
+
 
         Try
-            Dim cmd As New OleDb.OleDbCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
+            Dim cmd As New OleDbCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
                            FieldsOfStudy VARCHAR(255), Degrees VARCHAR(255), Locations VARCHAR(255), NiceToKnow LONGTEXT, Description LONGTEXT,
                            URL VARCHAR(255), HTML LONGTEXT)", conn)
             cmd.ExecuteNonQuery()
-        Catch ex As Exception
-            'Do nothing
+        Catch ex As OleDbException
+            If ex.ErrorCode = -2147217900 Then
+                'Do nothing, table already exists
+            Else
+                Throw ex
+            End If
         End Try
 
 
@@ -40,6 +43,8 @@ Public Class DatabaseAccess
     Public Sub AddJobOffers(jobs As List(Of JobOffer))
 
         'TODO
+
+        Dim conn As OleDbConnection = getConnection()
 
 
     End Sub
