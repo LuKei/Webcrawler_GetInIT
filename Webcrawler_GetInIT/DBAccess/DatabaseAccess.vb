@@ -1,40 +1,30 @@
 ﻿Imports System.IO
-Imports System.Data.OleDb
+Imports System.Data.SQLite
 
 Public Class DatabaseAccess
 
     Private connectionString As String
-    Private connection As OleDbConnection
+    Private connection As SQLiteConnection
 
     Public Property filename As String
 
     Public Sub New(filename As String)
 
         Me.filename = filename
-
-        Dim creationString As String = "Provider=Microsoft.ACE.OLEDB.15.0;Data Source=" & filename
-        connectionString = creationString & ";Persist Security Info=False;"
-        'Access File erzeugen, wenn noch nicht vorhanden
-        If Not File.Exists(filename) Then
-            Dim cat As New ADOX.Catalog()
-            cat.Create(creationString)
-        End If
+        connectionString = "Data Source=" & filename & ";Version=3"
 
 
-        Dim conn As OleDbConnection = getConnection()
+
+        Dim conn As SQLiteConnection = getConnection()
 
 
         Try
-            Dim cmd As New OleDbCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
-                           FieldsOfStudy VARCHAR(255), Degrees VARCHAR(255), Locations VARCHAR(255), NiceToKnow LONGTEXT, Description LONGTEXT,
-                           URL VARCHAR(255), HTML LONGTEXT)", conn)
+            Dim cmd As New SQLiteCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
+                           FieldsOfStudy VARCHAR(255), Degrees VARCHAR(255), Locations VARCHAR(255), NiceToKnow TEXT, Description TEXT,
+                           URL VARCHAR(255), HTML TEXT)", conn)
             cmd.ExecuteNonQuery()
-        Catch ex As OleDbException
-            If ex.ErrorCode = -2147217900 Then
-                'Do nothing, table already exists
-            Else
-                Throw ex
-            End If
+        Catch ex As SQLiteException
+            MsgBox(ex.ToString)
         End Try
 
 
@@ -44,14 +34,14 @@ Public Class DatabaseAccess
 
         'TODO
 
-        Dim conn As OleDbConnection = getConnection()
+        Dim conn As SQLiteConnection = getConnection()
 
 
     End Sub
 
-    Private Function getConnection() As OleDb.OleDbConnection
+    Private Function getConnection() As SQLiteConnection
         If connection Is Nothing Then
-            connection = New OleDb.OleDbConnection(connectionString)
+            connection = New SQLiteConnection(connectionString)
         End If
 
         If connection.State = ConnectionState.Closed Then

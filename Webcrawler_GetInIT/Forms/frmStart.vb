@@ -7,7 +7,7 @@
     Private Sub btnNeu_Click(sender As Object, e As EventArgs) Handles btnNeu.Click
 
         Dim dlg As New SaveFileDialog
-        dlg.Filter = "Microsoft Access-Datenbank|*.accdb"
+        dlg.Filter = "SQLite Datenbank|*.sqlite"
 
 
         If dlg.ShowDialog = DialogResult.OK Then
