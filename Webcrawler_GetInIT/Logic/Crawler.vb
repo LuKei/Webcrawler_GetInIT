@@ -5,6 +5,7 @@ Public Class Crawler
     Private Db As DatabaseAccess
     Private form As frmMain
     Private crawlThread As Thread
+    Private ReadOnly sitemapLink As String = "https://www.get-in-it.de/sitemap.xml"
 
     Public Sub New(filename As String, form As frmMain)
 
@@ -16,6 +17,12 @@ Public Class Crawler
     Public Sub StartCrawling()
 
         Dim f = Sub(argument As Object)
+
+                    Dim myDb As DatabaseAccess = CType(argument(0), DatabaseAccess)
+                    Dim myForm As frmMain = CType(argument(1), frmMain)
+
+
+
 
                 End Sub
 
