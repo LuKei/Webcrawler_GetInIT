@@ -19,9 +19,12 @@ Public Class DatabaseAccess
 
 
         Try
-            Dim cmd As New SQLiteCommand("CREATE TABLE JobOffer(Id INTEGER PRIMARY KEY NOT NULL, OfferTitle VARCHAR(255), Company VARCHAR(255), CoreAreas VARCHAR(255),
-                           FieldsOfStudy VARCHAR(255), Degrees VARCHAR(255), Locations VARCHAR(255), NiceToKnow TEXT, Description TEXT,
-                           URL VARCHAR(255), HTML TEXT)", conn)
+            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY, Sourcecode TEXT NOT NULL)", conn)
+            cmd.ExecuteNonQuery()
+
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
+                           FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT NOT NULL, Description TEXT NOT NULL,
+                           URL VARCHAR(255) NOT NULL, SitemapId INTEGER NOT NULL,FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
             cmd.ExecuteNonQuery()
         Catch ex As SQLiteException
             MsgBox(ex.ToString)

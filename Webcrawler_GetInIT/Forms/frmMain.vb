@@ -28,4 +28,9 @@
         crawler.PauseCrawling()
 
     End Sub
+
+
+    Public Sub AddInfoText(text As String)
+        tbInfo.Text += vbCrLf & DateTime.Now.ToLongTimeString & ": " & text
+    End Sub
 End Class
