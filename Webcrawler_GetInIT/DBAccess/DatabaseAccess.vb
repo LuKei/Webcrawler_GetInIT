@@ -19,7 +19,7 @@ Public Class DatabaseAccess
 
 
         Try
-            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY, Sourcecode TEXT NOT NULL)", conn)
+            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY, Sourcecode TEXT NOT NULL, Timestamp DATETIME DEFAULT (datetime('now', 'localtime')))", conn)
             cmd.ExecuteNonQuery()
 
             cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
