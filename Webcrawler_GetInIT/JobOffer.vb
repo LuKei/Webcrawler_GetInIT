@@ -1,5 +1,6 @@
 ﻿Public Class JobOffer
 
+    Private _Id As Integer
     Private _OfferTitle As String
     Private _Company As String
     Private _CoreAreas As List(Of String)
@@ -10,6 +11,7 @@
     Private _Description As String
     Private _URL As String
     Private _HTML As String
+    Private _Timestamp As DateTime
 
 #Region "Properties"
     Public Property OfferTitle As String
@@ -99,6 +101,24 @@
         End Get
         Set(value As String)
             _HTML = value
+        End Set
+    End Property
+
+    Public Property Timestamp As DateTime
+        Get
+            Return _Timestamp
+        End Get
+        Set(value As DateTime)
+            _Timestamp = value
+        End Set
+    End Property
+
+    Public Property Id As Integer
+        Get
+            Return _Id
+        End Get
+        Set(value As Integer)
+            _Id = value
         End Set
     End Property
 #End Region

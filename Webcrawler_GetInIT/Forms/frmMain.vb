@@ -33,4 +33,11 @@
     Public Sub AddInfoText(text As String)
         tbInfo.Text += vbCrLf & DateTime.Now.ToLongTimeString & ": " & text
     End Sub
+
+    Private Sub tbInfo_TextChanged(sender As Object, e As EventArgs) Handles tbInfo.TextChanged
+        'Aktuelle caret position auf Ende des Textes setzen
+        tbInfo.SelectionStart = tbInfo.Text.Length
+        'Zum caret scrollen
+        tbInfo.ScrollToCaret()
+    End Sub
 End Class
