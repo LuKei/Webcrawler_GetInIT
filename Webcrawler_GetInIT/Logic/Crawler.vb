@@ -12,9 +12,9 @@ Public Class Crawler
     Private crawlThread As Thread
     Private ReadOnly sitemapLink As String = "https://www.get-in-it.de/sitemap.xml"
 
-    Public Sub New(filename As String, form As frmMain)
+    Public Sub New(Db As DatabaseAccess, form As frmMain)
 
-        Db = New DatabaseAccess(filename)
+        Me.Db = Db
         Me.form = form
 
     End Sub
@@ -40,7 +40,11 @@ Public Class Crawler
 
                     'Sitemap String in Datenbank speichern
                     Dim sitemapId As Integer
-                    sitemapId = myDb.AddSitemap(mySitemapString)
+                    sitemapId = myDb.AddSitemap(New Sitemap(mySitemapString))
+                    If sitemapId < 0 Then
+                        myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Fehler beim Laden der Sitemap"})
+                        Return
+                    End If
 
                     myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Sitemap geladen"})
 
@@ -145,7 +149,6 @@ Public Class Crawler
                                         jobOffers.Add(jobOffer)
                                         isJobOffer = False
                                         myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Jobangebot mit der Id " & jobOffer.Id & " erfasst"})
-                                        'Thread.Sleep(500)
                                     End If
                             End Select
                         End If
@@ -154,13 +157,15 @@ Public Class Crawler
 
                     'Alle JobOffers in die Datenbank einfügen
                     myDb.AddJobOffers(jobOffers, sitemapId)
-                    myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {jobOffers.Count & "Jobangebote in der Datenbank gespeichert"})
+                    myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {jobOffers.Count & " Jobangebote in der Datenbank gespeichert"})
 
 
 
 
                     myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Crawling beendet"})
 
+
+                    myForm.BeginInvoke(New RefreshGridCallback(AddressOf myForm.RefreshGrid))
                 End Sub
 
         crawlThread = New Thread(f)
@@ -169,6 +174,8 @@ Public Class Crawler
     End Sub
 
     Delegate Sub AddInfoTextCallback([text] As String)
+
+    Delegate Sub RefreshGridCallback()
 
     Public Sub PauseCrawling()
 

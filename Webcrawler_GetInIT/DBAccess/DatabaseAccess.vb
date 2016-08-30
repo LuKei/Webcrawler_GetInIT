@@ -19,12 +19,12 @@ Public Class DatabaseAccess
 
 
         Try
-            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, Sourcecode TEXT NOT NULL, Timestamp DATETIME DEFAULT (datetime('now', 'localtime')))", conn)
+            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp DATETIME DEFAULT (datetime('now', 'localtime')))", conn)
             cmd.ExecuteNonQuery()
 
-            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY AUTOINCREMENT, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
-                           FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT NOT NULL, Description TEXT NOT NULL,
-                           URL VARCHAR(255) NOT NULL, Timestamp DATETIME NOT NULL, SitemapId INTEGER NOT NULL,FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
+                           FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT, Description TEXT NOT NULL,
+                           URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp DATETIME NOT NULL, SitemapId INTEGER NOT NULL,FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
             cmd.ExecuteNonQuery()
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
@@ -39,9 +39,10 @@ Public Class DatabaseAccess
 
         Dim conn As SQLiteConnection = getConnection()
         Try
-            Dim cmd As New SQLiteCommand("INSERT INTO JobOffer(OfferTitle, Company, CoreAreas, FieldsOfStudy, Degrees, Locations, NiceToKnow, Description, URL, Timestamp, SitemapId) 
-                                          VALUES(@OfferTitle, @Company, @CoreAreas, @FieldsOfStudy, @Degrees, @Locations, @NiceToKnow, @Description, @URL, @Timestamp, @SitemapId)", conn)
+            Dim cmd As New SQLiteCommand("INSERT INTO JobOffer(Id, OfferTitle, Company, CoreAreas, FieldsOfStudy, Degrees, Locations, NiceToKnow, Description, URL, HTML, Timestamp, SitemapId) 
+                                          VALUES(@Id, @OfferTitle, @Company, @CoreAreas, @FieldsOfStudy, @Degrees, @Locations, @NiceToKnow, @Description, @URL, @HTML, @Timestamp, @SitemapId)", conn)
             For Each job In jobs
+                cmd.Parameters.AddWithValue("@Id", job.Id)
                 cmd.Parameters.AddWithValue("@OfferTitle", job.OfferTitle)
                 cmd.Parameters.AddWithValue("@Company", job.Company)
                 Dim areas As String = ""
@@ -52,7 +53,7 @@ Public Class DatabaseAccess
                     areas += area & ", "
                 Next
                 For Each field In job.FieldsOfStudy
-                    fields += fields & ", "
+                    fields += field & ", "
                 Next
                 For Each degree In job.Degrees
                     degrees += degree & " ,"
@@ -65,40 +66,101 @@ Public Class DatabaseAccess
                 degrees.Remove(degrees.Length - 3)
                 locations.Remove(locations.Length - 3)
                 cmd.Parameters.AddWithValue("@CoreAreas", areas)
-                cmd.Parameters.AddWithValue("@FiledsOfStudy", fields)
+                cmd.Parameters.AddWithValue("@FieldsOfStudy", fields)
                 cmd.Parameters.AddWithValue("@Degrees", degrees)
                 cmd.Parameters.AddWithValue("@Locations", locations)
-                cmd.Parameters.AddWithValue("@NiceToKnow", job.NiceToKnow)
+                cmd.Parameters.AddWithValue("@NiceToKnow", If(job.NiceToKnow Is Nothing, "", job.NiceToKnow))
                 cmd.Parameters.AddWithValue("@Description", job.Description)
                 cmd.Parameters.AddWithValue("@URL", job.URL)
+                cmd.Parameters.AddWithValue("@HTML", job.HTML)
                 cmd.Parameters.AddWithValue("@Timestamp", job.Timestamp.ToString)
                 cmd.Parameters.AddWithValue("@SitemapId", sitemapId)
                 cmd.ExecuteNonQuery()
-                cmd.Parameters.Clear()
             Next
         Catch ex As SQLiteException
-
+            MessageBox.Show(ex.ToString)
+            Throw ex
         End Try
 
 
     End Sub
 
-    Public Function AddSitemap(sitemapString As String) As Integer
+    Public Function AddSitemap(Sitemap As Sitemap) As Integer
 
         Dim conn As SQLiteConnection = getConnection()
         Try
-            Dim cmd As New SQLiteCommand("INSERT INTO Sitemap (Sourcecode) VALUES (@sitemapString)", conn)
-            cmd.Parameters.AddWithValue("@sitemapString", sitemapString)
+            Dim cmd As New SQLiteCommand("INSERT INTO Sitemap (HTML) VALUES (@sitemapString)", conn)
+            cmd.Parameters.AddWithValue("@sitemapString", Sitemap.Sourcecode)
             cmd.ExecuteNonQuery()
             cmd.Parameters.Clear()
-            cmd.CommandText = "SELECT Id FROM Sitemap"
-            Dim reader As SQLiteDataReader = cmd.ExecuteReader()
-            Return CInt(reader.Read())
+            cmd.CommandText = "SELECT last_insert_rowid()"
+            Return (CInt(cmd.ExecuteScalar()))
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
+            Return -1
         End Try
 
     End Function
+
+
+    Public Function getJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
+
+        Dim conn As SQLiteConnection = getConnection()
+        Dim SitemapId As Integer = Sitemap.Id
+        Dim jobOffers As New List(Of JobOffer)
+        Try
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM JobOffer WHERE SitemapId = @SitemapId", conn)
+            Dim table As New DataTable()
+            Dim jobOffer As JobOffer
+            adapter.SelectCommand.Parameters.AddWithValue("@SitemapId", SitemapId)
+            adapter.Fill(table)
+            For Each row In table.Rows
+                jobOffer = New JobOffer()
+                With jobOffer
+                    .OfferTitle = row("OfferTitle")
+                    .Company = row("Company")
+                    .CoreAreas = row("CoreAreas")
+                    .FieldsOfStudy = row("FieldsOfStudy")
+                    .Degrees = row("Degrees")
+                    .Locations = row("Loactions")
+                    .NiceToKnow = row("NiceToKnow")
+                    .Description = row("Description")
+                    .URL = row("URL")
+                    .HTML = row("HTML")
+                    .Timestamp = row("Timestamp")
+                End With
+            Next
+        Catch ex As SQLiteException
+            MsgBox(ex.ToString)
+            Throw ex
+        End Try
+
+    End Function
+
+
+    Public Function getSitemaps() As List(Of Sitemap)
+
+        Dim conn As SQLiteConnection = getConnection()
+        Dim sitemaps As New List(Of Sitemap)
+        Try
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap", conn)
+            Dim table As New DataTable()
+            Dim sitemap As Sitemap
+            adapter.Fill(table)
+            For Each row In table.Rows
+                sitemap = New Sitemap(row("HTML"))
+                With sitemap
+                    .Id = row("Id")
+                    .Timestamp = row("Timestamp")
+                End With
+            Next
+        Catch ex As SQLiteException
+            MsgBox(ex.ToString)
+            Throw ex
+        End Try
+
+    End Function
+
 
     Private Function getConnection() As SQLiteConnection
         If connection Is Nothing Then

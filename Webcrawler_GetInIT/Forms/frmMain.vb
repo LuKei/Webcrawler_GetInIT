@@ -3,7 +3,9 @@
 
 
     Public Property filename As String
-    Public crawler As Crawler
+    Public Property crawler As Crawler
+    Private currentSitemap As Sitemap
+    Private Db As DatabaseAccess
 
 
 
@@ -12,7 +14,8 @@
         Dim myFrm As New frmStart()
         myFrm.ShowDialog(Me)
 
-        crawler = New Crawler(filename, Me)
+        Db = New DatabaseAccess(filename)
+        crawler = New Crawler(Db, Me)
 
 
     End Sub
@@ -39,5 +42,24 @@
         tbInfo.SelectionStart = tbInfo.Text.Length
         'Zum caret scrollen
         tbInfo.ScrollToCaret()
+    End Sub
+
+    Private Sub RefreshcombSitemapToCompare()
+
+        comboSitemapToCompare.Items.Clear()
+
+        Dim sitemaps As List(Of Sitemap) = Db.getSitemaps()
+        For Each sitemap In sitemaps
+            'TODO: Item richtig einfügen
+            comboSitemapToCompare.Items.Add(sitemap)
+        Next
+
+    End Sub
+
+
+    Public Sub RefreshGrid()
+        'TODO: aktuelle joboffers mit letzten jobOffers vergleichen
+        RefreshcombSitemapToCompare()
+        comboSitemapToCompare.SelectedIndex = comboSitemapToCompare.Items.Count - 1
     End Sub
 End Class

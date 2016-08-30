@@ -23,64 +23,75 @@ Partial Class frmMain
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.btnStartCrawling = New System.Windows.Forms.Button()
-        Me.dgvJobOffers = New System.Windows.Forms.DataGridView()
+        Me.gridJobOffers = New System.Windows.Forms.DataGridView()
         Me.btnPauseCrawling = New System.Windows.Forms.Button()
         Me.tbInfo = New System.Windows.Forms.RichTextBox()
-        CType(Me.dgvJobOffers, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.comboSitemapToCompare = New System.Windows.Forms.ComboBox()
+        CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'btnStartCrawling
         '
-        Me.btnStartCrawling.Location = New System.Drawing.Point(12, 651)
+        Me.btnStartCrawling.Location = New System.Drawing.Point(12, 603)
         Me.btnStartCrawling.Name = "btnStartCrawling"
-        Me.btnStartCrawling.Size = New System.Drawing.Size(141, 46)
+        Me.btnStartCrawling.Size = New System.Drawing.Size(130, 46)
         Me.btnStartCrawling.TabIndex = 0
         Me.btnStartCrawling.Text = "Crawling starten"
         Me.btnStartCrawling.UseVisualStyleBackColor = True
         '
-        'dgvJobOffers
+        'gridJobOffers
         '
-        Me.dgvJobOffers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
-        Me.dgvJobOffers.Location = New System.Drawing.Point(12, 12)
-        Me.dgvJobOffers.Name = "dgvJobOffers"
-        Me.dgvJobOffers.Size = New System.Drawing.Size(1160, 633)
-        Me.dgvJobOffers.TabIndex = 1
+        Me.gridJobOffers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
+        Me.gridJobOffers.Location = New System.Drawing.Point(12, 12)
+        Me.gridJobOffers.Name = "gridJobOffers"
+        Me.gridJobOffers.Size = New System.Drawing.Size(1060, 535)
+        Me.gridJobOffers.TabIndex = 1
         '
         'btnPauseCrawling
         '
-        Me.btnPauseCrawling.Location = New System.Drawing.Point(12, 703)
+        Me.btnPauseCrawling.Location = New System.Drawing.Point(150, 603)
         Me.btnPauseCrawling.Name = "btnPauseCrawling"
-        Me.btnPauseCrawling.Size = New System.Drawing.Size(141, 46)
+        Me.btnPauseCrawling.Size = New System.Drawing.Size(130, 46)
         Me.btnPauseCrawling.TabIndex = 2
         Me.btnPauseCrawling.Text = "Crawling pausieren"
         Me.btnPauseCrawling.UseVisualStyleBackColor = True
         '
         'tbInfo
         '
-        Me.tbInfo.Location = New System.Drawing.Point(159, 651)
+        Me.tbInfo.Location = New System.Drawing.Point(286, 553)
         Me.tbInfo.Name = "tbInfo"
-        Me.tbInfo.Size = New System.Drawing.Size(1013, 98)
+        Me.tbInfo.Size = New System.Drawing.Size(786, 98)
         Me.tbInfo.TabIndex = 3
         Me.tbInfo.Text = ""
+        '
+        'comboSitemapToCompare
+        '
+        Me.comboSitemapToCompare.FormattingEnabled = True
+        Me.comboSitemapToCompare.Location = New System.Drawing.Point(12, 576)
+        Me.comboSitemapToCompare.Name = "comboSitemapToCompare"
+        Me.comboSitemapToCompare.Size = New System.Drawing.Size(268, 21)
+        Me.comboSitemapToCompare.TabIndex = 4
         '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(1184, 761)
+        Me.ClientSize = New System.Drawing.Size(1084, 661)
+        Me.Controls.Add(Me.comboSitemapToCompare)
         Me.Controls.Add(Me.tbInfo)
         Me.Controls.Add(Me.btnPauseCrawling)
-        Me.Controls.Add(Me.dgvJobOffers)
+        Me.Controls.Add(Me.gridJobOffers)
         Me.Controls.Add(Me.btnStartCrawling)
         Me.Name = "frmMain"
         Me.Text = "Webcrawler"
-        CType(Me.dgvJobOffers, System.ComponentModel.ISupportInitialize).EndInit()
+        CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
 
     End Sub
 
     Friend WithEvents btnStartCrawling As Button
-    Friend WithEvents dgvJobOffers As DataGridView
+    Friend WithEvents gridJobOffers As DataGridView
     Friend WithEvents btnPauseCrawling As Button
     Friend WithEvents tbInfo As RichTextBox
+    Friend WithEvents comboSitemapToCompare As ComboBox
 End Class
