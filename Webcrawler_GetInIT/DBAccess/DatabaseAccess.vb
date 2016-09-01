@@ -22,9 +22,10 @@ Public Class DatabaseAccess
             Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp DATETIME DEFAULT (datetime('now', 'localtime')))", conn)
             cmd.ExecuteNonQuery()
 
-            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER PRIMARY KEY, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER NOT NULL, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
                            FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT, Description TEXT NOT NULL,
-                           URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp DATETIME NOT NULL, SitemapId INTEGER NOT NULL,FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
+                           URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp DATETIME NOT NULL, SitemapId INTEGER NOT NULL, PRIMARY KEY(Id, SitemapId),
+                           FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
             cmd.ExecuteNonQuery()
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
@@ -34,8 +35,6 @@ Public Class DatabaseAccess
     End Sub
 
     Public Sub AddJobOffers(jobs As List(Of JobOffer), sitemapId As Integer)
-
-        'TODO
 
         Dim conn As SQLiteConnection = getConnection()
         Try
@@ -56,15 +55,15 @@ Public Class DatabaseAccess
                     fields += field & ", "
                 Next
                 For Each degree In job.Degrees
-                    degrees += degree & " ,"
+                    degrees += degree & ", "
                 Next
                 For Each location In job.Locations
-                    locations += location & " ,"
+                    locations += location & ", "
                 Next
-                areas.Remove(areas.Length - 3)
-                fields.Remove(fields.Length - 3)
-                degrees.Remove(degrees.Length - 3)
-                locations.Remove(locations.Length - 3)
+                areas = areas.Remove(areas.Length - 2)
+                fields = fields.Remove(fields.Length - 2)
+                degrees = degrees.Remove(degrees.Length - 2)
+                locations = locations.Remove(locations.Length - 2)
                 cmd.Parameters.AddWithValue("@CoreAreas", areas)
                 cmd.Parameters.AddWithValue("@FieldsOfStudy", fields)
                 cmd.Parameters.AddWithValue("@Degrees", degrees)
@@ -135,6 +134,8 @@ Public Class DatabaseAccess
             Throw ex
         End Try
 
+        Return jobOffers
+
     End Function
 
 
@@ -158,6 +159,8 @@ Public Class DatabaseAccess
             MsgBox(ex.ToString)
             Throw ex
         End Try
+
+        Return sitemaps
 
     End Function
 

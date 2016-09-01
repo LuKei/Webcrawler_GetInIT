@@ -96,11 +96,14 @@ Public Class Crawler
                                             items = myXPathNavigator.Select("//div[@id=""pageContainer""]/div[@class=""pageRow""]/div[@class=""teaserBox""]/p[@class=""subheading""]/span/a[@href]")
                                         End If
                                         jobOffer.Company = items(0).Value
+                                        jobOffer.Company = jobOffer.Company.Trim()
                                         '"Gut zu wissen" auslesen
                                         items = myXPathNavigator.Select("//div[@class=""further-information""]/ul/li")
                                         For Each item In items
                                             jobOffer.NiceToKnow += item.value & vbCrLf
                                         Next
+                                        jobOffer.NiceToKnow = If(Not jobOffer.NiceToKnow Is Nothing, jobOffer.NiceToKnow = jobOffer.NiceToKnow.Trim(), Nothing)
+
                                         'Schwerpunkte auslesen
                                         items = myXPathNavigator.Select("//div[@class=""scoop thematic-priorities""]/ul/li")
                                         For Each item In items
@@ -122,10 +125,10 @@ Public Class Crawler
                                             jobOffer.Locations.Add(item.Value)
                                         Next
                                         'Stellenbeschreibung auslesen
-                                        items = myXPathNavigator.Select("//div[@id=""job description""]")
+                                        'TODO: Description richtig auslesen!
+                                        items = myXPathNavigator.Select("//div[@id=""job_description""]")
                                         jobOffer.Description = items.ToString()
 
-                                        'TODO
                                         jobOffer.URL = jobOfferUrl
                                         jobOffer.Id = CInt(jobOfferUrl.Replace("https://www.get-in-it.de/it-einstiegsprogramme/p", ""))
                                         jobOffer.HTML = jobOfferHtmlString
@@ -149,11 +152,14 @@ Public Class Crawler
                                         jobOffers.Add(jobOffer)
                                         isJobOffer = False
                                         myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Jobangebot mit der Id " & jobOffer.Id & " erfasst"})
+                                        'TODO delete goto
+                                        'GoTo end_of_while
                                     End If
                             End Select
                         End If
                     Loop
 
+end_of_while:
 
                     'Alle JobOffers in die Datenbank einfügen
                     myDb.AddJobOffers(jobOffers, sitemapId)
