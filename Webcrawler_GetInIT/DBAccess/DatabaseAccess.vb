@@ -128,6 +128,7 @@ Public Class DatabaseAccess
                     .HTML = row("HTML")
                     .Timestamp = row("Timestamp")
                 End With
+                jobOffers.Add(jobOffer)
             Next
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
@@ -141,10 +142,9 @@ Public Class DatabaseAccess
 
     Public Function getSitemaps() As List(Of Sitemap)
 
-        Dim conn As SQLiteConnection = getConnection()
         Dim sitemaps As New List(Of Sitemap)
         Try
-            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap", conn)
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap", getConnection())
             Dim table As New DataTable()
             Dim sitemap As Sitemap
             adapter.Fill(table)
@@ -154,6 +154,7 @@ Public Class DatabaseAccess
                     .Id = row("Id")
                     .Timestamp = row("Timestamp")
                 End With
+                sitemaps.Add(sitemap)
             Next
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
@@ -162,6 +163,25 @@ Public Class DatabaseAccess
 
         Return sitemaps
 
+    End Function
+
+    Public Function getLastSitemap() As Sitemap
+
+        Dim sitemap As Sitemap
+        Try
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap WHERE Id = (SELECT MAX(Id) FROM JobOffer)", getConnection())
+            Dim table As New DataTable
+            adapter.Fill(table)
+            If table.Rows.Count > 0 Then
+                sitemap = New Sitemap(CStr(table.Rows("HTML").Item(1)))
+                sitemap.Id = CInt(table.Rows("Id").Item(0))
+                sitemap.Timestamp = table.Rows("Timestamp").Item(0)
+            End If
+        Catch ex As Exception
+
+        End Try
+
+        Return sitemap
     End Function
 
 

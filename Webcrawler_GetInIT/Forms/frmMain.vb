@@ -49,9 +49,10 @@
         comboSitemapToCompare.Items.Clear()
 
         Dim sitemaps As List(Of Sitemap) = Db.getSitemaps()
-        For Each sitemap In sitemaps
+        'Alle Sitemaps, außer die neuste einfügen
+        For i As Integer = 0 To sitemaps.Count - 2
             'TODO: Item richtig einfügen
-            comboSitemapToCompare.Items.Add(sitemap)
+            comboSitemapToCompare.Items.Add(sitemaps(i))
         Next
 
     End Sub
@@ -59,7 +60,9 @@
 
     Public Sub RefreshGrid()
         'TODO: aktuelle joboffers mit letzten jobOffers vergleichen
+        currentSitemap = Db.getLastSitemap()
         RefreshcombSitemapToCompare()
-        comboSitemapToCompare.SelectedIndex = comboSitemapToCompare.Items.Count - 1
+        comboSitemapToCompare.SelectedIndex = 0
+
     End Sub
 End Class
