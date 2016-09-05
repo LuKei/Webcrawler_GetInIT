@@ -126,8 +126,7 @@ Public Class Crawler
                                         Next
                                         'Stellenbeschreibung auslesen
                                         'TODO: Description richtig auslesen!
-                                        items = myXPathNavigator.Select("//div[@id=""job_description""]")
-                                        jobOffer.Description = items.ToString()
+                                        jobOffer.Description = myXmlDocument.SelectSingleNode("//div[@id=""job_description""]").InnerXml
 
                                         jobOffer.URL = jobOfferUrl
                                         jobOffer.Id = CInt(jobOfferUrl.Replace("https://www.get-in-it.de/it-einstiegsprogramme/p", ""))
@@ -142,9 +141,7 @@ Public Class Crawler
                                 Case "lastmod"
                                     'JobOffer mit Zeitstempel aus der Sitemap versehen
                                     If isJobOffer Then
-                                        'TODO: Zeitstempel in richtiges vormat bringen
-                                        'jobOffer.Timestamp = myXmlReader.Value
-                                        jobOffer.Timestamp = DateTime.Now
+                                        jobOffer.Timestamp = myXmlReader.Value
                                     End If
                                 Case "priority"
                                     'TODO: Ist die priority relevant? Was gibt diese an???

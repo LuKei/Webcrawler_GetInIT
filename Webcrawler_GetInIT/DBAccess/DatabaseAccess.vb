@@ -19,12 +19,12 @@ Public Class DatabaseAccess
 
 
         Try
-            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp DATETIME DEFAULT (datetime('now', 'localtime')))", conn)
+            Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp TEXT DEFAULT (datetime('now', 'localtime')))", conn)
             cmd.ExecuteNonQuery()
 
             cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER NOT NULL, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
                            FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT, Description TEXT NOT NULL,
-                           URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp DATETIME NOT NULL, SitemapId INTEGER NOT NULL, PRIMARY KEY(Id, SitemapId),
+                           URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp TEXT NOT NULL, SitemapId INTEGER NOT NULL, PRIMARY KEY(Id, SitemapId),
                            FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
             cmd.ExecuteNonQuery()
         Catch ex As SQLiteException
@@ -48,6 +48,7 @@ Public Class DatabaseAccess
                 Dim fields As String = ""
                 Dim degrees As String = ""
                 Dim locations As String = ""
+                'Dim timestampString As String = ""
                 For Each area In job.CoreAreas
                     areas += area & ", "
                 Next
@@ -72,7 +73,9 @@ Public Class DatabaseAccess
                 cmd.Parameters.AddWithValue("@Description", job.Description)
                 cmd.Parameters.AddWithValue("@URL", job.URL)
                 cmd.Parameters.AddWithValue("@HTML", job.HTML)
-                cmd.Parameters.AddWithValue("@Timestamp", job.Timestamp.ToString)
+                'timestampString = job.Timestamp.Year & "-" & job.Timestamp.Month & "-" & job.Timestamp.Day _
+                '                 & " " & job.Timestamp.Hour & ":" & job.Timestamp.Minute & ":" & job.Timestamp.Second
+                cmd.Parameters.AddWithValue("@Timestamp", job.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", Globalization.DateTimeFormatInfo.InvariantInfo))
                 cmd.Parameters.AddWithValue("@SitemapId", sitemapId)
                 cmd.ExecuteNonQuery()
             Next
@@ -102,31 +105,44 @@ Public Class DatabaseAccess
     End Function
 
 
-    Public Function getJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
-
+    Public Function GetJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
+        'TODO: Listen umwandeln
         Dim conn As SQLiteConnection = getConnection()
         Dim SitemapId As Integer = Sitemap.Id
         Dim jobOffers As New List(Of JobOffer)
         Try
-            Dim adapter As New SQLiteDataAdapter("SELECT * FROM JobOffer WHERE SitemapId = @SitemapId", conn)
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM JobOffer WHERE SitemapId = @SitemapId ORDER BY Id ASC", conn)
             Dim table As New DataTable()
             Dim jobOffer As JobOffer
             adapter.SelectCommand.Parameters.AddWithValue("@SitemapId", SitemapId)
             adapter.Fill(table)
             For Each row In table.Rows
                 jobOffer = New JobOffer()
+                jobOffer.CoreAreas = New List(Of String)
+                jobOffer.FieldsOfStudy = New List(Of String)
+                jobOffer.Degrees = New List(Of String)
+                jobOffer.Locations = New List(Of String)
                 With jobOffer
+                    .Id = row("Id")
                     .OfferTitle = row("OfferTitle")
                     .Company = row("Company")
-                    .CoreAreas = row("CoreAreas")
-                    .FieldsOfStudy = row("FieldsOfStudy")
-                    .Degrees = row("Degrees")
-                    .Locations = row("Loactions")
+                    For Each area In CStr(row("CoreAreas")).Split(" ,")
+                        jobOffer.CoreAreas.Add(area)
+                    Next
+                    For Each field In CStr(row("FieldsOfStudy")).Split(" ,")
+                        jobOffer.FieldsOfStudy.Add(field)
+                    Next
+                    For Each degree In CStr(row("Degrees")).Split(" ,")
+                        jobOffer.Degrees.Add(degree)
+                    Next
+                    For Each location In CStr(row("Locations")).Split(" ,")
+                        jobOffer.Locations.Add(location)
+                    Next
                     .NiceToKnow = row("NiceToKnow")
                     .Description = row("Description")
                     .URL = row("URL")
                     .HTML = row("HTML")
-                    .Timestamp = row("Timestamp")
+                    .Timestamp = CType(DateTime.ParseExact(row("Timestamp"), "yyyy-MM-dd HH:mm:ss", Globalization.DateTimeFormatInfo.InvariantInfo), DateTime)
                 End With
                 jobOffers.Add(jobOffer)
             Next
@@ -140,7 +156,7 @@ Public Class DatabaseAccess
     End Function
 
 
-    Public Function getSitemaps() As List(Of Sitemap)
+    Public Function GetSitemaps() As List(Of Sitemap)
 
         Dim sitemaps As New List(Of Sitemap)
         Try
@@ -165,17 +181,17 @@ Public Class DatabaseAccess
 
     End Function
 
-    Public Function getLastSitemap() As Sitemap
+    Public Function GetLastSitemap() As Sitemap
 
         Dim sitemap As Sitemap
         Try
-            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap WHERE Id = (SELECT MAX(Id) FROM JobOffer)", getConnection())
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM Sitemap WHERE Id = (SELECT MAX(Id) FROM Sitemap)", getConnection())
             Dim table As New DataTable
             adapter.Fill(table)
             If table.Rows.Count > 0 Then
-                sitemap = New Sitemap(CStr(table.Rows("HTML").Item(1)))
-                sitemap.Id = CInt(table.Rows("Id").Item(0))
-                sitemap.Timestamp = table.Rows("Timestamp").Item(0)
+                sitemap = New Sitemap(CStr(table.Rows(0).Item("HTML")))
+                sitemap.Id = CInt(table.Rows(0).Item("Id"))
+                sitemap.Timestamp = table.Rows(0).Item("Timestamp")
             End If
         Catch ex As Exception
 
@@ -185,7 +201,7 @@ Public Class DatabaseAccess
     End Function
 
 
-    Private Function getConnection() As SQLiteConnection
+    Private Function GetConnection() As SQLiteConnection
         If connection Is Nothing Then
             connection = New SQLiteConnection(connectionString)
         End If
@@ -196,6 +212,10 @@ Public Class DatabaseAccess
 
         Return connection
     End Function
+
+    Public Sub Close()
+        connection.Close()
+    End Sub
 
 
 End Class

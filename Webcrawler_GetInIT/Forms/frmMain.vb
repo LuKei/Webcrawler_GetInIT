@@ -5,6 +5,7 @@
     Public Property filename As String
     Public Property crawler As Crawler
     Private currentSitemap As Sitemap
+    Private sitemapToCompare As Sitemap
     Private Db As DatabaseAccess
 
 
@@ -17,6 +18,7 @@
         Db = New DatabaseAccess(filename)
         crawler = New Crawler(Db, Me)
 
+        RefreshGrid()
 
     End Sub
 
@@ -44,14 +46,13 @@
         tbInfo.ScrollToCaret()
     End Sub
 
-    Private Sub RefreshcombSitemapToCompare()
+    Private Sub RefreshcomboSitemapToCompare()
 
         comboSitemapToCompare.Items.Clear()
 
         Dim sitemaps As List(Of Sitemap) = Db.getSitemaps()
         'Alle Sitemaps, außer die neuste einfügen
         For i As Integer = 0 To sitemaps.Count - 2
-            'TODO: Item richtig einfügen
             comboSitemapToCompare.Items.Add(sitemaps(i))
         Next
 
@@ -59,10 +60,72 @@
 
 
     Public Sub RefreshGrid()
-        'TODO: aktuelle joboffers mit letzten jobOffers vergleichen
+
+        RefreshcomboSitemapToCompare()
         currentSitemap = Db.getLastSitemap()
-        RefreshcombSitemapToCompare()
-        comboSitemapToCompare.SelectedIndex = 0
+        If comboSitemapToCompare.Items.Count > 0 AndAlso Not currentSitemap Is Nothing Then
+            If comboSitemapToCompare.SelectedItem Is Nothing Then
+                comboSitemapToCompare.SelectedIndex = 0
+            End If
+
+            'Die neusten JobOffers mit den zu der in der comboBox ausgewählten Sitemap gehörenden Joboffers vergleichen
+
+            'DataTables füllen:
+            Dim compareJobOfferTable As New DataTable
+            Dim currentjobOfferTable As DataTable
+
+            With compareJobOfferTable.Columns
+                .Add("Id", GetType(Integer))
+                .Add("OfferTitle", GetType(String))
+                .Add("Company", GetType(String))
+                .Add("CoreAreas", GetType(String))
+                .Add("FieldsOfStudy", GetType(String))
+                .Add("Degrees", GetType(String))
+                .Add("Locations", GetType(String))
+                .Add("NiceToKnow", GetType(String))
+                .Add("Description", GetType(String))
+                .Add("URL", GetType(String))
+                .Add("HTML", GetType(String))
+            End With
+
+            For Each job In Db.getJobOffers(currentSitemap)
+                With compareJobOfferTable.Rows
+                    .Add({job.Id, job.OfferTitle, job.Company, job.CoreAreas, job.FieldsOfStudy, job.Degrees, job.Locations,
+                         job.NiceToKnow, job.Description, job.URL, job.HTML})
+                End With
+            Next
+
+
+
+            currentjobOfferTable = compareJobOfferTable.Clone()
+
+            For Each job In Db.getJobOffers(comboSitemapToCompare.SelectedItem)
+                With currentjobOfferTable.Rows
+                    .Add({job.Id, job.OfferTitle, job.Company, job.CoreAreas, job.FieldsOfStudy, job.Degrees, job.Locations,
+                         job.NiceToKnow, job.Description, job.URL, job.HTML})
+                End With
+            Next
+
+
+            'TODO:
+            'Eigentliches vergleichen:
+
+
+
+        End If
+
+
+    End Sub
+
+    Private Sub frmMain_Closed(sender As Object, e As EventArgs) Handles Me.Closed
+        Db.Close()
+    End Sub
+
+    Private Sub comboSitemapToCompare_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboSitemapToCompare.SelectedIndexChanged
+
+        If comboSitemapToCompare.Items.Count > 0 Then
+            sitemapToCompare = CType(comboSitemapToCompare.SelectedItem, Sitemap)
+        End If
 
     End Sub
 End Class

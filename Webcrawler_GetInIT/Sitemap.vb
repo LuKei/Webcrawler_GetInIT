@@ -37,4 +37,10 @@
         Me.Sourcecode = Sourcecode
     End Sub
 
+    Public Overrides Function ToString() As String
+        Dim s As String = ""
+        s += "Id: " & Id & "; Timestamp: " & Timestamp
+        Return s
+    End Function
+
 End Class
