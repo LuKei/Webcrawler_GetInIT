@@ -24,9 +24,10 @@ Partial Class frmMain
     Private Sub InitializeComponent()
         Me.btnStartCrawling = New System.Windows.Forms.Button()
         Me.gridJobOffers = New System.Windows.Forms.DataGridView()
-        Me.btnPauseCrawling = New System.Windows.Forms.Button()
+        Me.btnQuitCrawling = New System.Windows.Forms.Button()
         Me.tbInfo = New System.Windows.Forms.RichTextBox()
         Me.comboSitemapToCompare = New System.Windows.Forms.ComboBox()
+        Me.Label1 = New System.Windows.Forms.Label()
         CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -47,14 +48,15 @@ Partial Class frmMain
         Me.gridJobOffers.Size = New System.Drawing.Size(1060, 535)
         Me.gridJobOffers.TabIndex = 1
         '
-        'btnPauseCrawling
+        'btnQuitCrawling
         '
-        Me.btnPauseCrawling.Location = New System.Drawing.Point(150, 603)
-        Me.btnPauseCrawling.Name = "btnPauseCrawling"
-        Me.btnPauseCrawling.Size = New System.Drawing.Size(130, 46)
-        Me.btnPauseCrawling.TabIndex = 2
-        Me.btnPauseCrawling.Text = "Crawling pausieren"
-        Me.btnPauseCrawling.UseVisualStyleBackColor = True
+        Me.btnQuitCrawling.Enabled = False
+        Me.btnQuitCrawling.Location = New System.Drawing.Point(150, 603)
+        Me.btnQuitCrawling.Name = "btnQuitCrawling"
+        Me.btnQuitCrawling.Size = New System.Drawing.Size(130, 46)
+        Me.btnQuitCrawling.TabIndex = 2
+        Me.btnQuitCrawling.Text = "Crawling abbrechen"
+        Me.btnQuitCrawling.UseVisualStyleBackColor = True
         '
         'tbInfo
         '
@@ -72,26 +74,38 @@ Partial Class frmMain
         Me.comboSitemapToCompare.Size = New System.Drawing.Size(268, 21)
         Me.comboSitemapToCompare.TabIndex = 4
         '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(12, 553)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(159, 13)
+        Me.Label1.TabIndex = 5
+        Me.Label1.Text = "Neuste Sitemap vergleichen mit:"
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1084, 661)
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.comboSitemapToCompare)
         Me.Controls.Add(Me.tbInfo)
-        Me.Controls.Add(Me.btnPauseCrawling)
+        Me.Controls.Add(Me.btnQuitCrawling)
         Me.Controls.Add(Me.gridJobOffers)
         Me.Controls.Add(Me.btnStartCrawling)
         Me.Name = "frmMain"
         Me.Text = "Webcrawler"
         CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents btnStartCrawling As Button
     Friend WithEvents gridJobOffers As DataGridView
-    Friend WithEvents btnPauseCrawling As Button
+    Friend WithEvents btnQuitCrawling As Button
     Friend WithEvents tbInfo As RichTextBox
     Friend WithEvents comboSitemapToCompare As ComboBox
+    Friend WithEvents Label1 As Label
 End Class

@@ -24,13 +24,15 @@
 
     Private Sub btnStartCrawling_Click(sender As Object, e As EventArgs) Handles btnStartCrawling.Click
 
+        btnStartCrawling.Enabled = False
+        btnQuitCrawling.Enabled = True
         crawler.StartCrawling()
 
     End Sub
 
-    Private Sub btnPauseCrawling_Click(sender As Object, e As EventArgs) Handles btnPauseCrawling.Click
+    Private Sub btnQuitCrawling_Click(sender As Object, e As EventArgs) Handles btnQuitCrawling.Click
 
-        crawler.PauseCrawling()
+        crawler.QuitCrawling()
 
     End Sub
 
@@ -70,11 +72,15 @@
 
             'Die neusten JobOffers mit den zu der in der comboBox ausgewählten Sitemap gehörenden Joboffers vergleichen
 
-            'DataTables füllen:
-            Dim compareJobOfferTable As New DataTable
-            Dim currentjobOfferTable As DataTable
+            Dim compareJobOffers As List(Of JobOffer)
+            Dim currentjobOffers As List(Of JobOffer)
+            Dim table As New DataTable()
+            Dim checkedIds As New List(Of Integer)
 
-            With compareJobOfferTable.Columns
+            currentjobOffers = Db.GetJobOffers(currentSitemap)
+            compareJobOffers = Db.GetJobOffers(comboSitemapToCompare.SelectedItem)
+
+            With table.Columns
                 .Add("Id", GetType(Integer))
                 .Add("OfferTitle", GetType(String))
                 .Add("Company", GetType(String))
@@ -85,31 +91,82 @@
                 .Add("NiceToKnow", GetType(String))
                 .Add("Description", GetType(String))
                 .Add("URL", GetType(String))
-                .Add("HTML", GetType(String))
+                .Add("Style", GetType(String))
             End With
 
-            For Each job In Db.getJobOffers(currentSitemap)
-                With compareJobOfferTable.Rows
-                    .Add({job.Id, job.OfferTitle, job.Company, job.CoreAreas, job.FieldsOfStudy, job.Degrees, job.Locations,
-                         job.NiceToKnow, job.Description, job.URL, job.HTML})
-                End With
+            gridJobOffers.DataSource = table
+            gridJobOffers.Columns.Item("Style").Visible = False
+
+            'Eigentliches vergleichen und table füllen:
+            For i As Integer = 0 To currentjobOffers.Count - 1
+                Dim currentJobOffer As JobOffer = currentjobOffers.Item(i)
+                Dim compareJobOffer As JobOffer = (From r As JobOffer In compareJobOffers Where r.Id = currentJobOffer.Id).FirstOrDefault()
+                table.Rows.Add({currentJobOffer.Id, currentJobOffer.OfferTitle, currentJobOffer.Company, currentJobOffer.getCoreAreasAsString,
+                                       currentJobOffer.getFieldsOfStudyAsString, currentJobOffer.getDegreesAsString, currentJobOffer.getLocationsAsString,
+                                       currentJobOffer.NiceToKnow, currentJobOffer.Description, currentJobOffer.URL, ""}.ToArray)
+                Dim currentRow As DataRow = table.Rows(table.Rows.Count - 1)
+
+                If compareJobOffer Is Nothing Then
+                    'currentJobOffer ist ein JobOffer, welches nicht in compareJobOfferTable enthalten ist.
+                    'Es handelt sich also um ein neues JobOffer und wird als solches markiert.
+                    currentRow.Item("Style") = "0"
+                Else
+                    'currentJobOffer ist ein JobOffer, welches bereits in compareOfferTable enthalten ist.
+                    'Es müssen also alle properties verglichen werden.
+                    If Not currentJobOffer.OfferTitle.Equals(compareJobOffer.OfferTitle) Then
+                        'Zelle als geändert markieren
+                        currentRow.Item("Style") = currentRow.Item("Style") & "," & "1"
+                    End If
+                    If Not currentJobOffer.Company.Equals(compareJobOffer.Company) Then
+                        'Zelle als geändert markieren
+                        currentRow.Item("Style") = currentRow.Item("Style") & "," & "2"
+                    End If
+                    For j As Integer = 0 To currentJobOffer.CoreAreas.Count - 1
+                        If currentJobOffer.CoreAreas.Count <> compareJobOffer.CoreAreas.Count OrElse Not currentJobOffer.CoreAreas(j).Equals(compareJobOffer.CoreAreas(j)) Then
+                            'Zelle als geändert markieren
+                            currentRow.Item("Style") = currentRow.Item("Style") & "," & "3"
+                            Exit For
+                        End If
+                    Next
+                    For k As Integer = 0 To currentJobOffer.FieldsOfStudy.Count - 1
+                        If currentJobOffer.FieldsOfStudy.Count <> compareJobOffer.FieldsOfStudy.Count OrElse Not currentJobOffer.FieldsOfStudy(k).Equals(compareJobOffer.FieldsOfStudy(k)) Then
+                            'Zelle als geändert markieren
+                            currentRow.Item("Style") = currentRow.Item("Style") & "," & "4"
+                            Exit For
+                        End If
+                    Next
+                    For l As Integer = 0 To currentJobOffer.Degrees.Count - 1
+                        If currentJobOffer.Degrees.Count <> compareJobOffer.Degrees.Count OrElse Not currentJobOffer.Degrees(l).Equals(compareJobOffer.Degrees(l)) Then
+                            'Zelle als geändert markieren
+                            currentRow.Item("Style") = currentRow.Item("Style") & "," & "5"
+                            Exit For
+                        End If
+                    Next
+                    For m As Integer = 0 To currentJobOffer.Locations.Count - 1
+                        If currentJobOffer.Locations.Count <> compareJobOffer.Locations.Count OrElse Not currentJobOffer.Locations(m).Equals(compareJobOffer.Locations(m)) Then
+                            'Zelle als geändert markieren
+                            currentRow.Item("Style") = currentRow.Item("Style") & "," & "6"
+                            Exit For
+                        End If
+                    Next
+                    If Not currentJobOffer.NiceToKnow.Equals(compareJobOffer.NiceToKnow) Then
+                        'Zelle als geändert markieren
+                        currentRow.Item("Style") = currentRow.Item("Style") & "," & "7"
+                    End If
+                    If Not currentJobOffer.Description.Equals(compareJobOffer.Description) Then
+                        'Zelle als geändert markieren
+                        currentRow.Item("Style") = currentRow.Item("Style") & "," & "8"
+                    End If
+                    If Not currentJobOffer.URL.Equals(compareJobOffer.URL) Then
+                        'Zelle als geändert markieren
+                        currentRow.Item("Style") = currentRow.Item("Style") & "," & "9"
+                    End If
+
+                End If
+                checkedIds.Add(currentJobOffer.Id)
             Next
 
-
-
-            currentjobOfferTable = compareJobOfferTable.Clone()
-
-            For Each job In Db.getJobOffers(comboSitemapToCompare.SelectedItem)
-                With currentjobOfferTable.Rows
-                    .Add({job.Id, job.OfferTitle, job.Company, job.CoreAreas, job.FieldsOfStudy, job.Degrees, job.Locations,
-                         job.NiceToKnow, job.Description, job.URL, job.HTML})
-                End With
-            Next
-
-
-            'TODO:
-            'Eigentliches vergleichen:
-
+            'TODO: schauen, welche jobOffers weggefallen sind (mit checkedIds)
 
 
         End If
@@ -128,4 +185,23 @@
         End If
 
     End Sub
+
+    Public Sub QuitCrawlingFinished()
+
+        btnStartCrawling.Enabled = True
+        btnQuitCrawling.Enabled = False
+
+    End Sub
+
+    Private Sub gridJobOffers_CellFormatting(ByVal sender As Object, ByVal e As DataGridViewCellFormattingEventArgs) Handles gridJobOffers.CellFormatting
+
+        If CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value) = "0" OrElse CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value).Split(",").Contains(CStr(e.ColumnIndex)) Then
+
+            e.CellStyle.BackColor = Color.Green
+
+        End If
+
+    End Sub
+
+
 End Class

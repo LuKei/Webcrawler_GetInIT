@@ -146,4 +146,48 @@
         Me.HTML = HTML
     End Sub
 
+    Public Function getCoreAreasAsString() As String
+
+        Dim areas As String = ""
+        For Each area In Me.CoreAreas
+            areas += area & ", "
+        Next
+        areas = areas.Remove(areas.Length - 2)
+        Return areas
+
+    End Function
+
+    Public Function getFieldsOfStudyAsString() As String
+
+        Dim fields As String = ""
+        For Each field In Me.FieldsOfStudy
+            fields += field & ", "
+        Next
+        fields = fields.Remove(fields.Length - 2)
+        Return fields
+
+    End Function
+
+    Public Function getDegreesAsString() As String
+
+        Dim degrees As String = ""
+        For Each degree In Me.Degrees
+            degrees += degree & ", "
+        Next
+        degrees = degrees.Remove(degrees.Length - 2)
+        Return degrees
+
+    End Function
+
+
+    Public Function getLocationsAsString() As String
+
+        Dim locations As String = ""
+        For Each location In Me.Locations
+            locations += location & ", "
+        Next
+        locations = locations.Remove(locations.Length - 2)
+        Return locations
+
+    End Function
 End Class

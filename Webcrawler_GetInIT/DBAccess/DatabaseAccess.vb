@@ -44,31 +44,11 @@ Public Class DatabaseAccess
                 cmd.Parameters.AddWithValue("@Id", job.Id)
                 cmd.Parameters.AddWithValue("@OfferTitle", job.OfferTitle)
                 cmd.Parameters.AddWithValue("@Company", job.Company)
-                Dim areas As String = ""
-                Dim fields As String = ""
-                Dim degrees As String = ""
-                Dim locations As String = ""
                 'Dim timestampString As String = ""
-                For Each area In job.CoreAreas
-                    areas += area & ", "
-                Next
-                For Each field In job.FieldsOfStudy
-                    fields += field & ", "
-                Next
-                For Each degree In job.Degrees
-                    degrees += degree & ", "
-                Next
-                For Each location In job.Locations
-                    locations += location & ", "
-                Next
-                areas = areas.Remove(areas.Length - 2)
-                fields = fields.Remove(fields.Length - 2)
-                degrees = degrees.Remove(degrees.Length - 2)
-                locations = locations.Remove(locations.Length - 2)
-                cmd.Parameters.AddWithValue("@CoreAreas", areas)
-                cmd.Parameters.AddWithValue("@FieldsOfStudy", fields)
-                cmd.Parameters.AddWithValue("@Degrees", degrees)
-                cmd.Parameters.AddWithValue("@Locations", locations)
+                cmd.Parameters.AddWithValue("@CoreAreas", job.getCoreAreasAsString)
+                cmd.Parameters.AddWithValue("@FieldsOfStudy", job.getFieldsOfStudyAsString)
+                cmd.Parameters.AddWithValue("@Degrees", job.getDegreesAsString)
+                cmd.Parameters.AddWithValue("@Locations", job.getLocationsAsString)
                 cmd.Parameters.AddWithValue("@NiceToKnow", If(job.NiceToKnow Is Nothing, "", job.NiceToKnow))
                 cmd.Parameters.AddWithValue("@Description", job.Description)
                 cmd.Parameters.AddWithValue("@URL", job.URL)
@@ -106,8 +86,8 @@ Public Class DatabaseAccess
 
 
     Public Function GetJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
-        'TODO: Listen umwandeln
-        Dim conn As SQLiteConnection = getConnection()
+        'TODO: wird Timestamp gebraucht?
+        Dim conn As SQLiteConnection = GetConnection()
         Dim SitemapId As Integer = Sitemap.Id
         Dim jobOffers As New List(Of JobOffer)
         Try

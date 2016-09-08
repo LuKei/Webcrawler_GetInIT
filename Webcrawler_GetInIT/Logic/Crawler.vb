@@ -10,6 +10,7 @@ Public Class Crawler
     Private Db As DatabaseAccess
     Private form As frmMain
     Private crawlThread As Thread
+    Private quit As Boolean = False
     Private ReadOnly sitemapLink As String = "https://www.get-in-it.de/sitemap.xml"
 
     Public Sub New(Db As DatabaseAccess, form As frmMain)
@@ -62,6 +63,15 @@ Public Class Crawler
                     Dim jobOffer As JobOffer
                     Dim jobOfferHtmlString As String
                     Do While myXmlReader.Read()
+                        If quit Then
+                            'Crawling abbrechen
+                            quit = False
+                            myXmlReader.Close()
+                            mySgmlReader.Close()
+                            myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Crawling abgebrochen"})
+                            myForm.BeginInvoke(New QuitCrawlingCallback(AddressOf myForm.QuitCrawlingFinished))
+                            Return
+                        End If
 
                         If myXmlReader.NodeType = XmlNodeType.Element Then
                             lastNodeName = myXmlReader.Name
@@ -97,12 +107,12 @@ Public Class Crawler
                                         End If
                                         jobOffer.Company = items(0).Value
                                         jobOffer.Company = jobOffer.Company.Trim()
-                                        '"Gut zu wissen" auslesen
+                                        'NiceToKnow auslesen
                                         items = myXPathNavigator.Select("//div[@class=""further-information""]/ul/li")
                                         For Each item In items
                                             jobOffer.NiceToKnow += item.value & vbCrLf
                                         Next
-                                        jobOffer.NiceToKnow = If(Not jobOffer.NiceToKnow Is Nothing, jobOffer.NiceToKnow = jobOffer.NiceToKnow.Trim(), Nothing)
+                                        jobOffer.NiceToKnow = If(Not jobOffer.NiceToKnow Is Nothing, jobOffer.NiceToKnow.Trim(), Nothing)
 
                                         'Schwerpunkte auslesen
                                         items = myXPathNavigator.Select("//div[@class=""scoop thematic-priorities""]/ul/li")
@@ -124,8 +134,7 @@ Public Class Crawler
                                         For Each item In items
                                             jobOffer.Locations.Add(item.Value)
                                         Next
-                                        'Stellenbeschreibung auslesen
-                                        'TODO: Description richtig auslesen!
+                                        'Stellenbeschreibung auslesen (als HTML)
                                         jobOffer.Description = myXmlDocument.SelectSingleNode("//div[@id=""job_description""]").InnerXml
 
                                         jobOffer.URL = jobOfferUrl
@@ -149,14 +158,11 @@ Public Class Crawler
                                         jobOffers.Add(jobOffer)
                                         isJobOffer = False
                                         myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Jobangebot mit der Id " & jobOffer.Id & " erfasst"})
-                                        'TODO delete goto
-                                        'GoTo end_of_while
                                     End If
                             End Select
                         End If
                     Loop
 
-end_of_while:
 
                     'Alle JobOffers in die Datenbank einfügen
                     myDb.AddJobOffers(jobOffers, sitemapId)
@@ -168,7 +174,12 @@ end_of_while:
                     myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Crawling beendet"})
 
 
+                    myXmlReader.Close()
+                    mySgmlReader.Close()
+
                     myForm.BeginInvoke(New RefreshGridCallback(AddressOf myForm.RefreshGrid))
+
+
                 End Sub
 
         crawlThread = New Thread(f)
@@ -180,9 +191,11 @@ end_of_while:
 
     Delegate Sub RefreshGridCallback()
 
-    Public Sub PauseCrawling()
+    Delegate Sub QuitCrawlingCallback()
 
+    Public Sub QuitCrawling()
 
+        quit = True
 
     End Sub
 End Class
