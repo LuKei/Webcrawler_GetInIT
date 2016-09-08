@@ -12,13 +12,18 @@
 
     Private Sub frmMain_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
 
+
+
         Dim myFrm As New frmStart()
         myFrm.ShowDialog(Me)
+        If myFrm.DialogResult = DialogResult.Cancel Then
+            Me.Close()
+        Else
+            Db = New DatabaseAccess(filename)
+            crawler = New Crawler(Db, Me)
 
-        Db = New DatabaseAccess(filename)
-        crawler = New Crawler(Db, Me)
-
-        RefreshGrid()
+            RefreshGrid()
+        End If
 
     End Sub
 
@@ -91,6 +96,7 @@
                 .Add("NiceToKnow", GetType(String))
                 .Add("Description", GetType(String))
                 .Add("URL", GetType(String))
+                'Wird zum Markieren der Zellen bei geänderten Werten benötigt
                 .Add("Style", GetType(String))
             End With
 
@@ -175,7 +181,11 @@
     End Sub
 
     Private Sub frmMain_Closed(sender As Object, e As EventArgs) Handles Me.Closed
-        Db.Close()
+
+        If Not Db Is Nothing Then
+            Db.Close()
+        End If
+
     End Sub
 
     Private Sub comboSitemapToCompare_SelectedIndexChanged(sender As Object, e As EventArgs) Handles comboSitemapToCompare.SelectedIndexChanged
@@ -183,6 +193,7 @@
         If comboSitemapToCompare.Items.Count > 0 Then
             sitemapToCompare = CType(comboSitemapToCompare.SelectedItem, Sitemap)
         End If
+        RefreshGrid()
 
     End Sub
 

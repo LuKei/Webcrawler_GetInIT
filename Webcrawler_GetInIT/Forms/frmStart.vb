@@ -17,6 +17,7 @@
                 End If
                 CType(Me.Owner, frmMain).filename = dlg.FileName
                 Me.Close()
+                Me.DialogResult = DialogResult.OK
             Else
                 MessageBox.Show("Bitte geben Sie einen gültigen Dateinamen an.", "Fehler", MessageBoxButtons.OK)
             End If
@@ -32,6 +33,7 @@
             If Not String.IsNullOrEmpty(dlg.FileName) Then
                 CType(Me.Owner, frmMain).filename = dlg.FileName
                 Me.Close()
+                Me.DialogResult = DialogResult.OK
             Else
                 MessageBox.Show("Bitte wählen Sie eine gültige Datei aus.", "Fehler", MessageBoxButtons.OK)
             End If
