@@ -22,7 +22,7 @@
             Db = New DatabaseAccess(filename)
             crawler = New Crawler(Db, Me)
 
-            RefreshGrid()
+            RefreshcomboSitemapToCompare()
         End If
 
     End Sub
@@ -53,11 +53,11 @@
         tbInfo.ScrollToCaret()
     End Sub
 
-    Private Sub RefreshcomboSitemapToCompare()
+    Public Sub RefreshcomboSitemapToCompare()
 
         comboSitemapToCompare.Items.Clear()
 
-        Dim sitemaps As List(Of Sitemap) = Db.getSitemaps()
+        Dim sitemaps As List(Of Sitemap) = Db.GetSitemaps()
         'Alle Sitemaps, außer die neuste einfügen
         For i As Integer = 0 To sitemaps.Count - 2
             comboSitemapToCompare.Items.Add(sitemaps(i))
@@ -66,14 +66,11 @@
     End Sub
 
 
-    Public Sub RefreshGrid()
+    Private Sub RefreshGrid()
 
-        RefreshcomboSitemapToCompare()
-        currentSitemap = Db.getLastSitemap()
-        If comboSitemapToCompare.Items.Count > 0 AndAlso Not currentSitemap Is Nothing Then
-            If comboSitemapToCompare.SelectedItem Is Nothing Then
-                comboSitemapToCompare.SelectedIndex = 0
-            End If
+        'RefreshcomboSitemapToCompare()
+        currentSitemap = Db.GetLastSitemap()
+        If Not currentSitemap Is Nothing Then
 
             'Die neusten JobOffers mit den zu der in der comboBox ausgewählten Sitemap gehörenden Joboffers vergleichen
 
@@ -83,7 +80,7 @@
             Dim checkedIds As New List(Of Integer)
 
             currentjobOffers = Db.GetJobOffers(currentSitemap)
-            compareJobOffers = Db.GetJobOffers(comboSitemapToCompare.SelectedItem)
+            compareJobOffers = Db.GetJobOffers(sitemapToCompare)
 
             With table.Columns
                 .Add("Id", GetType(Integer))

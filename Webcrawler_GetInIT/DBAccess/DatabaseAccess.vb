@@ -106,16 +106,16 @@ Public Class DatabaseAccess
                     .Id = row("Id")
                     .OfferTitle = row("OfferTitle")
                     .Company = row("Company")
-                    For Each area In CStr(row("CoreAreas")).Split(" ,")
+                    For Each area In CStr(row("CoreAreas")).Split(", ")
                         jobOffer.CoreAreas.Add(area)
                     Next
-                    For Each field In CStr(row("FieldsOfStudy")).Split(" ,")
+                    For Each field In CStr(row("FieldsOfStudy")).Split(", ")
                         jobOffer.FieldsOfStudy.Add(field)
                     Next
-                    For Each degree In CStr(row("Degrees")).Split(" ,")
+                    For Each degree In CStr(row("Degrees")).Split(", ")
                         jobOffer.Degrees.Add(degree)
                     Next
-                    For Each location In CStr(row("Locations")).Split(" ,")
+                    For Each location In CStr(row("Locations")).Split(", ")
                         jobOffer.Locations.Add(location)
                     Next
                     .NiceToKnow = row("NiceToKnow")

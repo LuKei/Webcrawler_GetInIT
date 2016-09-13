@@ -177,7 +177,7 @@ Public Class Crawler
                     myXmlReader.Close()
                     mySgmlReader.Close()
 
-                    myForm.BeginInvoke(New RefreshGridCallback(AddressOf myForm.RefreshGrid))
+                    myForm.BeginInvoke(New RefreshComboCallback(AddressOf myForm.RefreshcomboSitemapToCompare))
 
 
                 End Sub
@@ -189,7 +189,7 @@ Public Class Crawler
 
     Delegate Sub AddInfoTextCallback([text] As String)
 
-    Delegate Sub RefreshGridCallback()
+    Delegate Sub RefreshComboCallback()
 
     Delegate Sub QuitCrawlingCallback()
 
