@@ -149,10 +149,12 @@
     Public Function getCoreAreasAsString() As String
 
         Dim areas As String = ""
-        For Each area In Me.CoreAreas
-            areas += area & ", "
-        Next
-        areas = areas.Remove(areas.Length - 2)
+        If Me.CoreAreas.Count > 0 Then
+            For Each area In Me.CoreAreas
+                areas += area & ", "
+            Next
+            areas = areas.Remove(areas.Length - 2)
+        End If
         Return areas
 
     End Function
@@ -160,10 +162,12 @@
     Public Function getFieldsOfStudyAsString() As String
 
         Dim fields As String = ""
-        For Each field In Me.FieldsOfStudy
-            fields += field & ", "
-        Next
-        fields = fields.Remove(fields.Length - 2)
+        If Me.FieldsOfStudy.Count > 0 Then
+            For Each field In Me.FieldsOfStudy
+                fields += field & ", "
+            Next
+            fields = fields.Remove(fields.Length - 2)
+        End If
         Return fields
 
     End Function
@@ -171,10 +175,12 @@
     Public Function getDegreesAsString() As String
 
         Dim degrees As String = ""
-        For Each degree In Me.Degrees
-            degrees += degree & ", "
-        Next
-        degrees = degrees.Remove(degrees.Length - 2)
+        If Me.Degrees.Count > 0 Then
+            For Each degree In Me.Degrees
+                degrees += degree & ", "
+            Next
+            degrees = degrees.Remove(degrees.Length - 2)
+        End If
         Return degrees
 
     End Function
@@ -183,10 +189,12 @@
     Public Function getLocationsAsString() As String
 
         Dim locations As String = ""
-        For Each location In Me.Locations
-            locations += location & ", "
-        Next
-        locations = locations.Remove(locations.Length - 2)
+        If Me.Locations.Count > 0 Then
+            For Each location In Me.Locations
+                locations += location & ", "
+            Next
+            locations = locations.Remove(locations.Length - 2)
+        End If
         Return locations
 
     End Function
