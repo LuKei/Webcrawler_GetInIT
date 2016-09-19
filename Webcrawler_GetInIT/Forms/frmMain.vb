@@ -99,6 +99,8 @@
 
             gridJobOffers.DataSource = table
             gridJobOffers.Columns.Item("Style").Visible = False
+            gridJobOffers.Sort(gridJobOffers.Columns("Id"), System.ComponentModel.ListSortDirection.Ascending)
+            gridJobOffers.Sort(gridJobOffers.Columns("Style"), System.ComponentModel.ListSortDirection.Descending)
 
             'Eigentliches vergleichen und table füllen:
             For i As Integer = 0 To currentjobOffers.Count - 1
@@ -169,8 +171,16 @@
                 checkedIds.Add(currentJobOffer.Id)
             Next
 
-            'TODO: schauen, welche jobOffers weggefallen sind (mit checkedIds)
 
+            'Schauen, welche jobOffers weggefallen sind (mit checkedIds)
+            Dim deletedJobOffers As New List(Of JobOffer)
+            deletedJobOffers = (From jo As JobOffer In compareJobOffers Where Not checkedIds.Contains(jo.Id)).ToList
+            'Die weggefallenen JobOffers der Table hinzufügen und rot markieren
+            For Each jo In deletedJobOffers
+                table.Rows.Add({jo.Id, jo.OfferTitle, jo.Company, jo.getCoreAreasAsString,
+                jo.getFieldsOfStudyAsString, jo.getDegreesAsString, jo.getLocationsAsString,
+                jo.NiceToKnow, jo.Description, jo.URL, "-1"}.ToArray)
+            Next
 
         End If
 
@@ -203,10 +213,10 @@
 
     Private Sub gridJobOffers_CellFormatting(ByVal sender As Object, ByVal e As DataGridViewCellFormattingEventArgs) Handles gridJobOffers.CellFormatting
 
-        If CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value) = "0" OrElse CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value).Split(",").Contains(CStr(e.ColumnIndex)) Then
-
+        If CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value) = "0" OrElse CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value)?.Split(",").Contains(CStr(e.ColumnIndex)) Then
             e.CellStyle.BackColor = Color.Green
-
+        ElseIf CStr(gridJobOffers.Rows(e.RowIndex).Cells("Style").Value) = "-1" Then
+            e.CellStyle.BackColor = Color.Red
         End If
 
     End Sub
