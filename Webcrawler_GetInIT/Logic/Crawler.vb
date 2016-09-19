@@ -66,6 +66,7 @@ Public Class Crawler
                         If quit Then
                             'Crawling abbrechen
                             quit = False
+                            myDb.RollbackChanges()
                             myXmlReader.Close()
                             mySgmlReader.Close()
                             myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Crawling abgebrochen"})
@@ -166,6 +167,7 @@ Public Class Crawler
 
                     'Alle JobOffers in die Datenbank einfügen
                     myDb.AddJobOffers(jobOffers, sitemapId)
+                    myDb.CommitChanges()
                     myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {jobOffers.Count & " Jobangebote in der Datenbank gespeichert"})
 
 

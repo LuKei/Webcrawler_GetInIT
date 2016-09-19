@@ -5,6 +5,7 @@ Public Class DatabaseAccess
 
     Private connectionString As String
     Private connection As SQLiteConnection
+    Private transaction As SQLiteTransaction
 
     Public Property filename As String
 
@@ -15,8 +16,8 @@ Public Class DatabaseAccess
 
 
 
-        Dim conn As SQLiteConnection = getConnection()
-
+        Dim conn As SQLiteConnection = GetConnection()
+        transaction = conn.BeginTransaction()
 
         Try
             Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp TEXT DEFAULT (datetime('now', 'localtime')))", conn)
@@ -31,6 +32,7 @@ Public Class DatabaseAccess
             MsgBox(ex.ToString)
         End Try
 
+        Me.CommitChanges()
 
     End Sub
 
@@ -192,6 +194,22 @@ Public Class DatabaseAccess
 
         Return connection
     End Function
+
+
+    Public Sub CommitChanges()
+
+        transaction.Commit()
+        transaction = GetConnection().BeginTransaction()
+
+    End Sub
+
+
+    Public Sub RollbackChanges()
+
+        transaction.Rollback()
+        transaction = GetConnection().BeginTransaction()
+
+    End Sub
 
     Public Sub Close()
         connection.Close()
