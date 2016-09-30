@@ -36,9 +36,9 @@ Public Class DatabaseAccess
 
     End Sub
 
-    Public Sub AddJobOffers(jobs As List(Of JobOffer), sitemapId As Integer)
+    Public Sub AddJobOffers(jobs As List(Of JobOffer))
 
-        Dim conn As SQLiteConnection = getConnection()
+        Dim conn As SQLiteConnection = GetConnection()
         Try
             Dim cmd As New SQLiteCommand("INSERT INTO JobOffer(Id, OfferTitle, Company, CoreAreas, FieldsOfStudy, Degrees, Locations, NiceToKnow, Description, URL, HTML, Timestamp, SitemapId) 
                                           VALUES(@Id, @OfferTitle, @Company, @CoreAreas, @FieldsOfStudy, @Degrees, @Locations, @NiceToKnow, @Description, @URL, @HTML, @Timestamp, @SitemapId)", conn)
@@ -58,7 +58,7 @@ Public Class DatabaseAccess
                 'timestampString = job.Timestamp.Year & "-" & job.Timestamp.Month & "-" & job.Timestamp.Day _
                 '                 & " " & job.Timestamp.Hour & ":" & job.Timestamp.Minute & ":" & job.Timestamp.Second
                 cmd.Parameters.AddWithValue("@Timestamp", job.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", Globalization.DateTimeFormatInfo.InvariantInfo))
-                cmd.Parameters.AddWithValue("@SitemapId", sitemapId)
+                cmd.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
                 cmd.ExecuteNonQuery()
             Next
         Catch ex As SQLiteException
@@ -71,7 +71,7 @@ Public Class DatabaseAccess
 
     Public Function AddSitemap(Sitemap As Sitemap) As Integer
 
-        Dim conn As SQLiteConnection = getConnection()
+        Dim conn As SQLiteConnection = GetConnection()
         Try
             Dim cmd As New SQLiteCommand("INSERT INTO Sitemap (HTML) VALUES (@sitemapString)", conn)
             cmd.Parameters.AddWithValue("@sitemapString", Sitemap.Sourcecode)
@@ -126,6 +126,7 @@ Public Class DatabaseAccess
                     .HTML = row("HTML")
                     .Timestamp = CType(DateTime.ParseExact(row("Timestamp"), "yyyy-MM-dd HH:mm:ss", Globalization.DateTimeFormatInfo.InvariantInfo), DateTime)
                 End With
+                jobOffer.Sitemap = Sitemap
                 jobOffers.Add(jobOffer)
             Next
         Catch ex As SQLiteException

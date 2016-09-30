@@ -41,7 +41,9 @@ Public Class Crawler
 
                     'Sitemap String in Datenbank speichern
                     Dim sitemapId As Integer
-                    sitemapId = myDb.AddSitemap(New Sitemap(mySitemapString))
+                    Dim sitemap As New Sitemap(mySitemapString)
+                    sitemapId = myDb.AddSitemap(sitemap)
+                    sitemap.Id = sitemapId
                     If sitemapId < 0 Then
                         myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Fehler beim Laden der Sitemap"})
                         Return
@@ -156,6 +158,7 @@ Public Class Crawler
                                 Case "priority"
                                     'TODO: Ist die priority relevant? Was gibt diese an???
                                     If isJobOffer Then
+                                        jobOffer.Sitemap = sitemap
                                         jobOffers.Add(jobOffer)
                                         isJobOffer = False
                                         myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {"Jobangebot mit der Id " & jobOffer.Id & " erfasst"})
@@ -166,7 +169,7 @@ Public Class Crawler
 
 
                     'Alle JobOffers in die Datenbank einfügen
-                    myDb.AddJobOffers(jobOffers, sitemapId)
+                    myDb.AddJobOffers(jobOffers)
                     myDb.CommitChanges()
                     myForm.BeginInvoke(New AddInfoTextCallback(AddressOf myForm.AddInfoText), New Object() {jobOffers.Count & " Jobangebote in der Datenbank gespeichert"})
 

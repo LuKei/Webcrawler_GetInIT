@@ -12,6 +12,7 @@
     Private _URL As String
     Private _HTML As String
     Private _Timestamp As DateTime
+    Private _Sitemap As Sitemap
 
 #Region "Properties"
     Public Property OfferTitle As String
@@ -121,6 +122,15 @@
             _Id = value
         End Set
     End Property
+
+    Public Property Sitemap As Sitemap
+        Get
+            Return _Sitemap
+        End Get
+        Set(value As Sitemap)
+            _Sitemap = value
+        End Set
+    End Property
 #End Region
 
     Public Sub New()
@@ -133,7 +143,7 @@
 
 
     Public Sub New(OfferTitle As String, Company As String, CoreAreas As List(Of String), FieldsOfStudy As List(Of String),
-                   Degrees As List(Of String), Locations As List(Of String), NiceToKnow As String, Description As String, URL As String, HTML As String)
+                   Degrees As List(Of String), Locations As List(Of String), NiceToKnow As String, Description As String, URL As String, HTML As String, Sitemap As Sitemap)
         Me.OfferTitle = OfferTitle
         Me.Company = Company
         Me.CoreAreas = CoreAreas
@@ -144,6 +154,7 @@
         Me.Description = Description
         Me.URL = URL
         Me.HTML = HTML
+        Me.Sitemap = Sitemap
     End Sub
 
     Public Function getCoreAreasAsString() As String
