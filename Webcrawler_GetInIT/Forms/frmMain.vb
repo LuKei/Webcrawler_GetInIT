@@ -2,8 +2,8 @@
 
 
 
-    Public Property filename As String
-    Public Property crawler As Crawler
+    Public filename As String
+    Public Property Crawler As Crawler
     Private currentSitemap As Sitemap
     Private sitemapToCompare As Sitemap
     Private Db As DatabaseAccess
@@ -20,7 +20,7 @@
             Me.Close()
         Else
             Db = New DatabaseAccess(filename)
-            crawler = New Crawler(Db, Me)
+            Crawler = New Crawler(Db, Me)
 
             RefreshcomboSitemapToCompare()
         End If
@@ -31,13 +31,13 @@
 
         btnStartCrawling.Enabled = False
         btnQuitCrawling.Enabled = True
-        crawler.StartCrawling()
+        Crawler.StartCrawling()
 
     End Sub
 
     Private Sub btnQuitCrawling_Click(sender As Object, e As EventArgs) Handles btnQuitCrawling.Click
 
-        crawler.QuitCrawling()
+        Crawler.QuitCrawling()
 
     End Sub
 

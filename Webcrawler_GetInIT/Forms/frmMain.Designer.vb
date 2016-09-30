@@ -94,6 +94,7 @@ Partial Class frmMain
         Me.Controls.Add(Me.btnQuitCrawling)
         Me.Controls.Add(Me.gridJobOffers)
         Me.Controls.Add(Me.btnStartCrawling)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Name = "frmMain"
         Me.Text = "Webcrawler"
         CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).EndInit()

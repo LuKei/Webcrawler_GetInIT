@@ -7,12 +7,12 @@ Public Class DatabaseAccess
     Private connection As SQLiteConnection
     Private transaction As SQLiteTransaction
 
-    Public Property filename As String
+    Public Property Filename As String
 
-    Public Sub New(filename As String)
+    Public Sub New(Filename As String)
 
-        Me.filename = filename
-        connectionString = "Data Source=" & filename & ";Version=3"
+        Me.Filename = Filename
+        connectionString = "Data Source=" & Filename & ";Version=3"
 
 
 

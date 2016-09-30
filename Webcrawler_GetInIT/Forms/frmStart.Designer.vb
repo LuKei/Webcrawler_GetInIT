@@ -50,9 +50,9 @@ Partial Class frmStart
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(12, 65)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(392, 13)
+        Me.Label1.Size = New System.Drawing.Size(394, 13)
         Me.Label1.TabIndex = 2
-        Me.Label1.Text = "Möchten Sie eine neue Datei anlegen oder eine bereits vorhandene datei öffnen?"
+        Me.Label1.Text = "Möchten Sie eine neue Datei anlegen oder eine bereits vorhandene Datei öffnen?"
         '
         'frmStart
         '
@@ -62,8 +62,9 @@ Partial Class frmStart
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.btnOpen)
         Me.Controls.Add(Me.btnNeu)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
         Me.Name = "frmStart"
-        Me.Text = "frmStart"
+        Me.Text = "Datei auswählen"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
