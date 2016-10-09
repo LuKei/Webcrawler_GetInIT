@@ -21,6 +21,7 @@
         Else
             Db = New DatabaseAccess(filename)
             Crawler = New Crawler(Db, Me)
+            gridJobOffers.GetType.InvokeMember("DoubleBuffered", Reflection.BindingFlags.NonPublic Or Reflection.BindingFlags.Instance Or System.Reflection.BindingFlags.SetProperty, Nothing, gridJobOffers, New Object() {True})
 
             RefreshcomboSitemapToCompare()
         End If
