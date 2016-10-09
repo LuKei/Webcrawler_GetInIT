@@ -88,6 +88,7 @@ Public Class DatabaseAccess
 
 
     Public Function GetJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
+
         'TODO: wird Timestamp gebraucht?
         Dim conn As SQLiteConnection = GetConnection()
         Dim SitemapId As Integer = Sitemap.Id
@@ -177,7 +178,7 @@ Public Class DatabaseAccess
                 sitemap.Timestamp = table.Rows(0).Item("Timestamp")
             End If
         Catch ex As Exception
-
+            MsgBox(ex.ToString)
         End Try
 
         Return sitemap

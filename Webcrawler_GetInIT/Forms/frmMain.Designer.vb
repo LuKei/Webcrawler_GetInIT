@@ -33,6 +33,7 @@ Partial Class frmMain
         '
         'btnStartCrawling
         '
+        Me.btnStartCrawling.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.btnStartCrawling.Location = New System.Drawing.Point(12, 603)
         Me.btnStartCrawling.Name = "btnStartCrawling"
         Me.btnStartCrawling.Size = New System.Drawing.Size(130, 46)
@@ -42,6 +43,10 @@ Partial Class frmMain
         '
         'gridJobOffers
         '
+        Me.gridJobOffers.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.gridJobOffers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill
         Me.gridJobOffers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize
         Me.gridJobOffers.Location = New System.Drawing.Point(12, 12)
         Me.gridJobOffers.Name = "gridJobOffers"
@@ -50,6 +55,7 @@ Partial Class frmMain
         '
         'btnQuitCrawling
         '
+        Me.btnQuitCrawling.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.btnQuitCrawling.Enabled = False
         Me.btnQuitCrawling.Location = New System.Drawing.Point(150, 603)
         Me.btnQuitCrawling.Name = "btnQuitCrawling"
@@ -60,6 +66,8 @@ Partial Class frmMain
         '
         'tbInfo
         '
+        Me.tbInfo.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.tbInfo.Location = New System.Drawing.Point(286, 553)
         Me.tbInfo.Name = "tbInfo"
         Me.tbInfo.Size = New System.Drawing.Size(786, 98)
@@ -68,6 +76,7 @@ Partial Class frmMain
         '
         'comboSitemapToCompare
         '
+        Me.comboSitemapToCompare.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.comboSitemapToCompare.FormattingEnabled = True
         Me.comboSitemapToCompare.Location = New System.Drawing.Point(12, 576)
         Me.comboSitemapToCompare.Name = "comboSitemapToCompare"
@@ -76,6 +85,7 @@ Partial Class frmMain
         '
         'Label1
         '
+        Me.Label1.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.Label1.AutoSize = True
         Me.Label1.Location = New System.Drawing.Point(12, 553)
         Me.Label1.Name = "Label1"
@@ -94,7 +104,7 @@ Partial Class frmMain
         Me.Controls.Add(Me.btnQuitCrawling)
         Me.Controls.Add(Me.gridJobOffers)
         Me.Controls.Add(Me.btnStartCrawling)
-        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle
+        Me.MinimumSize = New System.Drawing.Size(800, 600)
         Me.Name = "frmMain"
         Me.Text = "Webcrawler"
         CType(Me.gridJobOffers, System.ComponentModel.ISupportInitialize).EndInit()
