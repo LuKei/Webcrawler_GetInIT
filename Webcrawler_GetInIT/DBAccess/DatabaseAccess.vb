@@ -46,17 +46,14 @@ Public Class DatabaseAccess
                 cmd.Parameters.AddWithValue("@Id", job.Id)
                 cmd.Parameters.AddWithValue("@OfferTitle", job.OfferTitle)
                 cmd.Parameters.AddWithValue("@Company", job.Company)
-                'Dim timestampString As String = ""
-                cmd.Parameters.AddWithValue("@CoreAreas", job.getCoreAreasAsString)
-                cmd.Parameters.AddWithValue("@FieldsOfStudy", job.getFieldsOfStudyAsString)
-                cmd.Parameters.AddWithValue("@Degrees", job.getDegreesAsString)
-                cmd.Parameters.AddWithValue("@Locations", job.getLocationsAsString)
+                cmd.Parameters.AddWithValue("@CoreAreas", job.getCoreAreasAsString())
+                cmd.Parameters.AddWithValue("@FieldsOfStudy", job.getFieldsOfStudyAsString())
+                cmd.Parameters.AddWithValue("@Degrees", job.getDegreesAsString())
+                cmd.Parameters.AddWithValue("@Locations", job.getLocationsAsString())
                 cmd.Parameters.AddWithValue("@NiceToKnow", If(job.NiceToKnow Is Nothing, "", job.NiceToKnow))
                 cmd.Parameters.AddWithValue("@Description", job.Description)
                 cmd.Parameters.AddWithValue("@URL", job.URL)
                 cmd.Parameters.AddWithValue("@HTML", job.HTML)
-                'timestampString = job.Timestamp.Year & "-" & job.Timestamp.Month & "-" & job.Timestamp.Day _
-                '                 & " " & job.Timestamp.Hour & ":" & job.Timestamp.Minute & ":" & job.Timestamp.Second
                 cmd.Parameters.AddWithValue("@Timestamp", job.Timestamp.ToString("yyyy-MM-dd HH:mm:ss", Globalization.DateTimeFormatInfo.InvariantInfo))
                 cmd.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
                 cmd.ExecuteNonQuery()
@@ -89,7 +86,6 @@ Public Class DatabaseAccess
 
     Public Function GetJobOffers(Sitemap As Sitemap) As List(Of JobOffer)
 
-        'TODO: wird Timestamp gebraucht?
         Dim conn As SQLiteConnection = GetConnection()
         Dim SitemapId As Integer = Sitemap.Id
         Dim jobOffers As New List(Of JobOffer)
