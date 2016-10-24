@@ -23,11 +23,23 @@ Public Class DatabaseAccess
             Dim cmd As New SQLiteCommand("CREATE TABLE IF NOT EXISTS Sitemap(Id INTEGER PRIMARY KEY AUTOINCREMENT, HTML TEXT NOT NULL, Timestamp TEXT DEFAULT (datetime('now', 'localtime')))", conn)
             cmd.ExecuteNonQuery()
 
-            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER NOT NULL, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, CoreAreas VARCHAR(255) NOT NULL,
-                           FieldsOfStudy VARCHAR(255) NOT NULL, Degrees VARCHAR(255) NOT NULL, Locations VARCHAR(255) NOT NULL, NiceToKnow TEXT, Description TEXT NOT NULL,
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS JobOffer(Id INTEGER NOT NULL, OfferTitle VARCHAR(255) NOT NULL, Company VARCHAR(255) NOT NULL, NiceToKnow TEXT, Description TEXT NOT NULL,
                            URL VARCHAR(255) NOT NULL, HTML TEXT NOT NULL, Timestamp TEXT NOT NULL, SitemapId INTEGER NOT NULL, PRIMARY KEY(Id, SitemapId),
                            FOREIGN KEY(SitemapId) REFERENCES Sitemap(Id))"
             cmd.ExecuteNonQuery()
+
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS CoreAreas(JobOfferId INTEGER NOT NULL, SitemapId INTEGER NOT NULL, CoreArea VARCHAR(255) NOT NULL, PRIMARY KEY(JobOfferId, SitemapId, CoreArea), FOREIGN KEY(JobOfferId, SitemapId) REFERENCES Sitemap(JobOfferId, SitemapId))"
+            cmd.ExecuteNonQuery()
+
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS FieldsOfStudy(JobOfferId INTEGER NOT NULL, SitemapId INTEGER NOT NULL, FieldOfStudy VARCHAR(255) NOT NULL, PRIMARY KEY(JobOfferId, SitemapId, FieldOfStudy), FOREIGN KEY(JobOfferId, SitemapId) REFERENCES Sitemap(JobOfferId, SitemapId))"
+            cmd.ExecuteNonQuery()
+
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS Degrees(JobOfferId INTEGER NOT NULL, SitemapId INTEGER NOT NULL, Degree VARCHAR(255) NOT NULL, PRIMARY KEY(JobOfferId, SitemapId, Degree), FOREIGN KEY(JobOfferId, SitemapId) REFERENCES Sitemap(JobOfferId, SitemapId))"
+            cmd.ExecuteNonQuery()
+
+            cmd.CommandText = "CREATE TABLE IF NOT EXISTS Locations(JobOfferId INTEGER NOT NULL,  SitemapId INTEGER NOT NULL, Location VARCHAR(255) NOT NULL, PRIMARY KEY(JobOfferId, SitemapId, Location), FOREIGN KEY(JobOfferId, SitemapId) REFERENCES Sitemap(JobOfferId, SitemapId))"
+            cmd.ExecuteNonQuery()
+
         Catch ex As SQLiteException
             MsgBox(ex.ToString)
         End Try
@@ -40,16 +52,45 @@ Public Class DatabaseAccess
 
         Dim conn As SQLiteConnection = GetConnection()
         Try
-            Dim cmd As New SQLiteCommand("INSERT INTO JobOffer(Id, OfferTitle, Company, CoreAreas, FieldsOfStudy, Degrees, Locations, NiceToKnow, Description, URL, HTML, Timestamp, SitemapId) 
-                                          VALUES(@Id, @OfferTitle, @Company, @CoreAreas, @FieldsOfStudy, @Degrees, @Locations, @NiceToKnow, @Description, @URL, @HTML, @Timestamp, @SitemapId)", conn)
+            Dim cmd As New SQLiteCommand("INSERT INTO JobOffer(Id, OfferTitle, Company, NiceToKnow, Description, URL, HTML, Timestamp, SitemapId) 
+                                          VALUES(@Id, @OfferTitle, @Company, @NiceToKnow, @Description, @URL, @HTML, @Timestamp, @SitemapId)", conn)
+
+            Dim cmd2 As New SQLiteCommand(conn)
             For Each job In jobs
                 cmd.Parameters.AddWithValue("@Id", job.Id)
                 cmd.Parameters.AddWithValue("@OfferTitle", job.OfferTitle)
                 cmd.Parameters.AddWithValue("@Company", job.Company)
-                cmd.Parameters.AddWithValue("@CoreAreas", job.getCoreAreasAsString())
-                cmd.Parameters.AddWithValue("@FieldsOfStudy", job.getFieldsOfStudyAsString())
-                cmd.Parameters.AddWithValue("@Degrees", job.getDegreesAsString())
-                cmd.Parameters.AddWithValue("@Locations", job.getLocationsAsString())
+                For Each coreArea In job.CoreAreas
+                    cmd2.CommandText = "INSERT INTO CoreAreas(JobOfferId, SitemapId, CoreArea) VALUES(@JobOfferId, @SitemapId, @CoreArea)"
+                    cmd2.Parameters.AddWithValue("@JobOfferId", job.Id)
+                    cmd2.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
+                    cmd2.Parameters.AddWithValue("@CoreArea", coreArea)
+                    cmd2.ExecuteNonQuery()
+                Next
+                For Each fieldOfStudy In job.FieldsOfStudy
+                    cmd2.CommandText = "INSERT INTO FieldsOfStudy(JobOfferId, SitemapId, FieldOfStudy) VALUES(@JobOfferId, @SitemapId, @FieldOfStudy)"
+                    cmd2.Parameters.Clear()
+                    cmd2.Parameters.AddWithValue("@JobOfferId", job.Id)
+                    cmd2.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
+                    cmd2.Parameters.AddWithValue("@FieldOfStudy", fieldOfStudy)
+                    cmd2.ExecuteNonQuery()
+                Next
+                For Each degree In job.Degrees
+                    cmd2.CommandText = "INSERT INTO Degrees(JobOfferId, SitemapId, Degree) VALUES(@JobOfferId, @SitemapId, @Degree)"
+                    cmd2.Parameters.Clear()
+                    cmd2.Parameters.AddWithValue("@JobOfferId", job.Id)
+                    cmd2.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
+                    cmd2.Parameters.AddWithValue("@Degree", degree)
+                    cmd2.ExecuteNonQuery()
+                Next
+                For Each location In job.Locations
+                    cmd2.CommandText = "INSERT INTO Locations(JobOfferId, SitemapId, Location) VALUES(@JobOfferId, @SitemapId, @Location)"
+                    cmd2.Parameters.Clear()
+                    cmd2.Parameters.AddWithValue("@JobOfferId", job.Id)
+                    cmd2.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
+                    cmd2.Parameters.AddWithValue("@Location", location)
+                    cmd2.ExecuteNonQuery()
+                Next
                 cmd.Parameters.AddWithValue("@NiceToKnow", If(job.NiceToKnow Is Nothing, "", job.NiceToKnow))
                 cmd.Parameters.AddWithValue("@Description", job.Description)
                 cmd.Parameters.AddWithValue("@URL", job.URL)
@@ -58,6 +99,7 @@ Public Class DatabaseAccess
                 cmd.Parameters.AddWithValue("@SitemapId", job.Sitemap.Id)
                 cmd.ExecuteNonQuery()
             Next
+
         Catch ex As SQLiteException
             MessageBox.Show(ex.ToString)
             Throw ex
@@ -90,33 +132,45 @@ Public Class DatabaseAccess
         Dim SitemapId As Integer = Sitemap.Id
         Dim jobOffers As New List(Of JobOffer)
         Try
-            Dim adapter As New SQLiteDataAdapter("SELECT * FROM JobOffer WHERE SitemapId = @SitemapId ORDER BY Id ASC", conn)
-            Dim table As New DataTable()
             Dim jobOffer As JobOffer
+
+            Dim jobOfferTable As New DataTable()
+            Dim coreAreaTable As New DataTable()
+            Dim fieldsOfStudyTable As New DataTable()
+            Dim degreesTable As New DataTable()
+            Dim locationsTable As New DataTable()
+
+            Dim adapter As New SQLiteDataAdapter("SELECT * FROM JobOffer WHERE SitemapId = @SitemapId ORDER BY Id ASC", conn)
             adapter.SelectCommand.Parameters.AddWithValue("@SitemapId", SitemapId)
-            adapter.Fill(table)
-            For Each row In table.Rows
+            adapter.Fill(jobOfferTable)
+
+            adapter.SelectCommand.CommandText = "SELECT * FROM CoreAreas WHERE SitemapId = @SitemapId"
+            adapter.Fill(coreAreaTable)
+
+            adapter.SelectCommand.CommandText = "SELECT * FROM FieldsOfStudy WHERE SitemapId = @SitemapId"
+            adapter.Fill(fieldsOfStudyTable)
+
+            adapter.SelectCommand.CommandText = "SELECT * FROM Degrees WHERE SitemapId = @SitemapId"
+            adapter.Fill(degreesTable)
+
+            adapter.SelectCommand.CommandText = "SELECT * FROM Locations WHERE SitemapId = @SitemapId"
+            adapter.Fill(locationsTable)
+
+            For Each row In jobOfferTable.Rows
                 jobOffer = New JobOffer()
-                jobOffer.CoreAreas = New List(Of String)
-                jobOffer.FieldsOfStudy = New List(Of String)
-                jobOffer.Degrees = New List(Of String)
-                jobOffer.Locations = New List(Of String)
                 With jobOffer
+                    .CoreAreas = New List(Of String)
+                    .FieldsOfStudy = New List(Of String)
+                    .Degrees = New List(Of String)
+                    .Locations = New List(Of String)
+
                     .Id = row("Id")
                     .OfferTitle = row("OfferTitle")
                     .Company = row("Company")
-                    For Each area In CStr(row("CoreAreas")).Split(", ")
-                        jobOffer.CoreAreas.Add(area)
-                    Next
-                    For Each field In CStr(row("FieldsOfStudy")).Split(", ")
-                        jobOffer.FieldsOfStudy.Add(field)
-                    Next
-                    For Each degree In CStr(row("Degrees")).Split(", ")
-                        jobOffer.Degrees.Add(degree)
-                    Next
-                    For Each location In CStr(row("Locations")).Split(", ")
-                        jobOffer.Locations.Add(location)
-                    Next
+                    .CoreAreas = (From row2 As DataRow In coreAreaTable.Rows Where row2.Item("JobOfferId") = jobOffer.Id Select CStr(row2.Item("CoreArea"))).ToList
+                    .FieldsOfStudy = (From row2 As DataRow In fieldsOfStudyTable.Rows Where row2.Item("JobOfferId") = jobOffer.Id Select CStr(row2.Item("FieldOfStudy"))).ToList
+                    .Degrees = (From row2 As DataRow In degreesTable.Rows Where row2.Item("JobOfferId") = jobOffer.Id Select CStr(row2.Item("Degree"))).ToList
+                    .Locations = (From row2 As DataRow In locationsTable.Rows Where row2.Item("JobOfferId") = jobOffer.Id Select CStr(row2.Item("Location"))).ToList
                     .NiceToKnow = row("NiceToKnow")
                     .Description = row("Description")
                     .URL = row("URL")
